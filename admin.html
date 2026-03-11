@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>美食地图 · 运营后台</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream: #F5F0E8;
+      --warm-white: #FDFAF4;
+      --brown: #5C3D2E;
+      --brown-light: #8B6355;
+      --brown-pale: #C4A882;
+      --accent: #D4845A;
+      --accent-light: #E8A882;
+      --green: #7A9E7E;
+      --red: #C0392B;
+      --text-dark: #2C1810;
+      --text-mid: #6B4C3B;
+      --text-light: #9B7B6A;
+      --border: #E0D5C5;
+      --shadow: rgba(92, 61, 46, 0.12);
+      --sidebar-w: 380px;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Login Screen ── */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .login-card {
+      background: var(--warm-white);
+      border: 1.5px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 360px;
+      box-shadow: 0 12px 48px var(--shadow);
+      text-align: center;
+    }
+
+    .login-logo {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .login-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--brown);
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 32px;
+    }
+
+    .login-field {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .login-label {
+      font-size: 12px;
+      color: var(--text-mid);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--cream);
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-dark);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-input:focus {
+      border-color: var(--accent);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    .login-btn:hover { background: var(--brown); }
+
+    .login-hint {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 16px;
+    }
+
+    .login-error {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: relative;
+      z-index: 100;
+      background: var(--brown);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .logo-badge {
+      background: var(--accent);
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-btn {
+      padding: 7px 16px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: white;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .header-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .header-btn.primary:hover {
+      background: var(--accent-light);
+    }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.8);
+      font-size: 13px;
+    }
+
+    /* ── Layout ── */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--warm-white);
+      border-right: 1.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .sidebar-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .sidebar-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-content::-webkit-scrollbar { width: 4px; }
+    .sidebar-content::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Spot List in Sidebar ── */
+    .spot-list-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spot-list-title {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .add-spot-btn {
+      padding: 6px 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .add-spot-btn:hover { background: var(--brown); }
+
+    .spot-card {
+      margin: 0 12px 8px;
+      padding: 14px;
+      background: var(--cream);
+      border-radius: 14px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .spot-card:hover {
+      border-color: var(--border);
+      background: var(--warm-white);
+    }
+
+    .spot-card.selected {
+      border-color: var(--accent);
+      background: var(--warm-white);
+    }
+
+    .spot-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .spot-card-emoji {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .spot-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .spot-card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .spot-card-meta {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .spot-card-actions {
+      display: flex;
+      gap: 6px;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .spot-card:hover .spot-card-actions {
+      opacity: 1;
+    }
+
+    .spot-action-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .spot-action-edit {
+      background: var(--accent);
+      color: white;
+    }
+
+    .spot-action-delete {
+      background: #fee;
+      color: var(--red);
+    }
+
+    .spot-action-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* ── Edit Form ── */
+    .edit-panel {
+      padding: 20px;
+    }
+
+    .edit-panel-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-mid);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-label .required {
+      color: var(--red);
+      margin-left: 2px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--cream);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-dark);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--accent);
+      background: var(--warm-white);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.6;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .tags-input-wrapper {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--cream);
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      cursor: text;
+      transition: border-color 0.2s;
+    }
+
+    .tags-input-wrapper:focus-within {
+      border-color: var(--accent);
+      background: var(--warm-white);
+    }
+
+    .tag-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--accent);
+      color: white;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .tag-chip-remove {
+      cursor: pointer;
+      opacity: 0.7;
+      font-size: 11px;
+    }
+
+    .tag-chip-remove:hover { opacity: 1; }
+
+    .tags-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-dark);
+      min-width: 80px;
+      flex: 1;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-save {
+      flex: 1;
+      padding: 11px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-save:hover { background: var(--brown); }
+
+    .btn-cancel {
+      padding: 11px 20px;
+      background: transparent;
+      color: var(--text-mid);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      background: var(--cream);
+    }
+
+    /* ── Map ── */
+    .map-area {
+      flex: 1;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-tip {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--brown);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .map-tip.show { opacity: 1; }
+
+    .map-crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 50;
+      display: none;
+    }
+
+    .map-crosshair.show { display: block; }
+
+    .map-crosshair::before, .map-crosshair::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+
+    .map-crosshair::before {
+      width: 2px;
+      height: 24px;
+      top: -12px;
+      left: -1px;
+    }
+
+    .map-crosshair::after {
+      width: 24px;
+      height: 2px;
+      left: -12px;
+      top: -1px;
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--warm-white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 20px;
+      display: flex;
+      gap: 24px;
+      z-index: 50;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    /* ── Loading ── */
+    .map-loading {
+      position: absolute;
+      inset: 0;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      gap: 16px;
+    }
+
+    .loading-icon {
+      font-size: 48px;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .loading-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      color: var(--text-mid);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: var(--brown);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success { background: var(--green); }
+    .toast.error { background: var(--red); }
+
+    /* ── Confirm Dialog ── */
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 9998;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dialog-overlay.show { display: flex; }
+
+    .dialog-box {
+      background: var(--warm-white);
+      border-radius: 20px;
+      padding: 32px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+    }
+
+    .dialog-icon { font-size: 40px; margin-bottom: 12px; }
+    .dialog-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+    .dialog-msg { font-size: 13px; color: var(--text-mid); margin-bottom: 24px; line-height: 1.6; }
+
+    .dialog-actions { display: flex; gap: 10px; }
+
+    .dialog-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .dialog-btn-cancel {
+      background: var(--cream);
+      color: var(--text-mid);
+      border: 1.5px solid var(--border);
+    }
+
+    .dialog-btn-confirm {
+      background: var(--red);
+      color: white;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-light);
+    }
+
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 13px; line-height: 1.6; }
+
+    /* ── Picking mode indicator ── */
+    .picking-banner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--accent);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      z-index: 60;
+      display: none;
+    }
+
+    .picking-banner.show { display: block; }
+
+    .picking-banner button {
+      margin-left: 12px;
+      padding: 3px 12px;
+      background: white;
+      color: var(--accent);
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🗺️</div>
+    <div class="login-title">美食地图后台</div>
+    <div class="login-sub">运营管理系统 · 请登录后操作</div>
+    <div class="login-field">
+      <label class="login-label">账号</label>
+      <input class="login-input" id="loginUser" type="text" placeholder="请输入账号" value="admin" />
+    </div>
+    <div class="login-field">
+      <label class="login-label">密码</label>
+      <input class="login-input" id="loginPass" type="password" placeholder="请输入密码" value="admin123"
+        onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">登 录</button>
+    <div class="login-error" id="loginError">账号或密码错误</div>
+    <div class="login-hint">演示账号：admin / admin123</div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🍜</div>
+    <div class="logo-text">美食地图</div>
+    <span class="logo-badge">运营后台</span>
+  </div>
+  <div class="header-actions">
+    <button class="header-btn" onclick="window.open('index.html','_blank')">👁 预览C端</button>
+    <button class="header-btn primary" onclick="publishMap()">🚀 发布地图</button>
+    <div class="header-user">
+      <span>👤</span>
+      <span id="headerUser">admin</span>
+      <button class="header-btn" onclick="doLogout()" style="padding:4px 10px;font-size:12px">退出</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <div class="sidebar-tab active" id="tabList" onclick="switchTab('list')">📍 店铺列表</div>
+      <div class="sidebar-tab" id="tabEdit" onclick="switchTab('edit')">✏️ 编辑信息</div>
+    </div>
+
+    <div class="sidebar-content" id="contentList">
+      <div class="spot-list-header">
+        <span class="spot-list-title" id="spotListCount">共 0 家店铺</span>
+        <button class="add-spot-btn" onclick="startAddSpot()">+ 添加店铺</button>
+      </div>
+      <div id="spotList"></div>
+    </div>
+
+    <div class="sidebar-content" id="contentEdit" style="display:none">
+      <div class="edit-panel">
+        <div class="edit-panel-title">
+          <span id="editPanelIcon">✏️</span>
+          <span id="editPanelTitle">编辑店铺</span>
+        </div>
+
+        <input type="hidden" id="editId" />
+
+        <div class="form-group">
+          <label class="form-label">店铺名称 <span class="required">*</span></label>
+          <input class="form-input" id="editName" placeholder="请输入店铺名称" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">分类 <span class="required">*</span></label>
+            <select class="form-select" id="editCategory">
+              <option value="川菜">🌶 川菜</option>
+              <option value="粤菜">🦐 粤菜</option>
+              <option value="日料">🍣 日料</option>
+              <option value="小吃">🥟 小吃</option>
+              <option value="甜品">🍰 甜品</option>
+              <option value="咖啡">☕ 咖啡</option>
+              <option value="火锅">🍲 火锅</option>
+              <option value="烧烤">🍖 烧烤</option>
+              <option value="西餐">🥩 西餐</option>
+              <option value="湘菜">🫙 湘菜</option>
+              <option value="淮扬菜">🦢 淮扬菜</option>
+              <option value="东北菜">🥘 东北菜</option>
+              <option value="其他">🍽 其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">推荐人 <span class="required">*</span></label>
+            <input class="form-input" id="editCurator" placeholder="如：蔡澜" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">推荐人身份</label>
+          <input class="form-input" id="editCuratorTitle" placeholder="如：美食家、食评人" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">推荐语 <span class="required">*</span></label>
+          <textarea class="form-textarea" id="editDesc" placeholder="请输入推荐语，描述这家店的特色…"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">标签</label>
+          <div class="tags-input-wrapper" id="tagsWrapper" onclick="document.getElementById('tagInput').focus()">
+            <input class="tags-input" id="tagInput" placeholder="输入后按回车添加"
+              onkeydown="handleTagInput(event)" />
+          </div>
+          <div class="form-hint">按回车键添加标签</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">地址</label>
+          <input class="form-input" id="editAddress" placeholder="请输入详细地址" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">经度 <span class="required">*</span></label>
+            <input class="form-input" id="editLng" placeholder="如：116.3974" type="number" step="0.0001" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">纬度 <span class="required">*</span></label>
+            <input class="form-input" id="editLat" placeholder="如：39.9093" type="number" step="0.0001" />
+          </div>
+        </div>
+        <div class="form-hint" style="margin-top:-10px;margin-bottom:16px">
+          💡 可在地图上点击选取坐标，或手动输入
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="cancelEdit()">取消</button>
+          <button class="btn-save" onclick="saveSpot()">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Area -->
+  <div class="map-area">
+    <div class="map-loading" id="mapLoading">
+      <div class="loading-icon">🗺️</div>
+      <div class="loading-text">地图加载中…</div>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="picking-banner" id="pickingBanner">
+      📍 请在地图上点击选取店铺位置
+      <button onclick="cancelPicking()">取消</button>
+    </div>
+
+    <div class="map-crosshair" id="mapCrosshair"></div>
+
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-item">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-label">总店铺</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statCategories">0</div>
+        <div class="stat-label">分类数</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statCurators">0</div>
+        <div class="stat-label">推荐人</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confirm Dialog -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box">
+    <div class="dialog-icon">🗑️</div>
+    <div class="dialog-title">确认删除</div>
+    <div class="dialog-msg" id="dialogMsg"></div>
+    <div class="dialog-actions">
+      <button class="dialog-btn dialog-btn-cancel" onclick="closeDialog()">取消</button>
+      <button class="dialog-btn dialog-btn-confirm" onclick="confirmDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'food_map_spots';
+
+const CATEGORY_CONFIG = {
+  '川菜':  { emoji: '🌶', color: '#E85D4A' },
+  '粤菜':  { emoji: '🦐', color: '#E8A84A' },
+  '日料':  { emoji: '🍣', color: '#4A8BE8' },
+  '小吃':  { emoji: '🥟', color: '#7A9E7E' },
+  '甜品':  { emoji: '🍰', color: '#D4845A' },
+  '咖啡':  { emoji: '☕', color: '#8B6355' },
+  '火锅':  { emoji: '🍲', color: '#C0392B' },
+  '烧烤':  { emoji: '🍖', color: '#E67E22' },
+  '西餐':  { emoji: '🥩', color: '#8E44AD' },
+  '湘菜':  { emoji: '🫙', color: '#B5451B' },
+  '淮扬菜': { emoji: '🦢', color: '#5B8A6E' },
+  '东北菜': { emoji: '🥘', color: '#7B5EA7' },
+  '其他':  { emoji: '🍽', color: '#95A5A6' },
+};
+
+// ── Auth ──
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if (user === 'admin' && pass === 'admin123') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('headerUser').textContent = user;
+    sessionStorage.setItem('admin_logged_in', '1');
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('admin_logged_in');
+  location.reload();
+}
+
+// Check session
+if (sessionStorage.getItem('admin_logged_in') === '1') {
+  document.getElementById('loginScreen').style.display = 'none';
+}
+
+// ── State ──
+let _map = null;
+let markers = [];
+let allSpots = [];
+let selectedSpotId = null;
+let editTags = [];
+let isPicking = false;
+let pendingDeleteId = null;
+
+// ── Data ──
+function loadSpots() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return [];
+}
+
+function saveSpots(spots) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(spots));
+}
+
+// ── Map Init ──
+window.initAMap = function() {
+  document.getElementById('mapLoading').style.display = 'none';
+
+  _map = new AMap.Map('map', {
+    zoom: 13,
+    center: [116.3974, 39.9093],
+    mapStyle: 'amap://styles/whitesmoke',
+  });
+
+  allSpots = loadSpots();
+  renderAll();
+
+  _map.on('click', (e) => {
+    if (isPicking) {
+      const { lng, lat } = e.lnglat;
+      document.getElementById('editLng').value = lng.toFixed(6);
+      document.getElementById('editLat').value = lat.toFixed(6);
+      stopPicking();
+      showToast('坐标已选取', 'success');
+    }
+  });
+};
+
+// ── Render ──
+function renderAll() {
+  renderMarkers();
+  renderSpotList();
+  updateStats();
+}
+
+function renderMarkers() {
+  markers.forEach(m => m.setMap(null));
+  markers = [];
+
+  allSpots.forEach(spot => {
+    const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
+    const markerEl = document.createElement('div');
+    markerEl.className = 'custom-marker';
+    markerEl.style.cssText = 'position:relative;cursor:pointer;transition:transform 0.2s';
+    markerEl.innerHTML = `
+      <div style="width:44px;height:44px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+        background:${cfg.color};display:flex;align-items:center;justify-content:center;
+        box-shadow:0 4px 12px rgba(0,0,0,0.2);border:2.5px solid white;
+        ${selectedSpotId === spot.id ? 'outline:3px solid #fff;box-shadow:0 0 0 3px '+cfg.color+',0 4px 12px rgba(0,0,0,0.3)' : ''}">
+        <span style="transform:rotate(45deg);font-size:20px">${cfg.emoji}</span>
+      </div>
+      <div style="position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);
+        white-space:nowrap;background:white;padding:2px 8px;border-radius:10px;
+        font-size:11px;color:#2C1810;font-weight:500;box-shadow:0 2px 6px rgba(92,61,46,0.12);
+        border:1px solid #E0D5C5;max-width:80px;overflow:hidden;text-overflow:ellipsis">
+        ${spot.name}
+      </div>
+    `;
+
+    const marker = new AMap.Marker({
+      position: [spot.lng, spot.lat],
+      content: markerEl,
+      offset: new AMap.Pixel(-22, -44),
+      zIndex: selectedSpotId === spot.id ? 200 : 100,
+    });
+
+    marker.on('click', () => selectSpot(spot.id));
+    marker.setMap(_map);
+    marker._spotId = spot.id;
+    markers.push(marker);
+  });
+}
+
+function renderSpotList() {
+  const container = document.getElementById('spotList');
+  document.getElementById('spotListCount').textContent = `共 ${allSpots.length} 家店铺`;
+
+  if (allSpots.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🗺️</div>
+        <div class="empty-state-text">还没有店铺<br>点击「添加店铺」开始编辑地图</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = allSpots.map(spot => {
+    const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
+    return `
+      <div class="spot-card ${selectedSpotId === spot.id ? 'selected' : ''}"
+        id="card_${spot.id}" onclick="selectSpot('${spot.id}')">
+        <div class="spot-card-header">
+          <div class="spot-card-emoji" style="background:linear-gradient(135deg,${cfg.color}33,${cfg.color}66)">
+            ${cfg.emoji}
+          </div>
+          <div class="spot-card-info">
+            <div class="spot-card-name">${spot.name}</div>
+            <div class="spot-card-meta">${spot.category} · ${spot.curator} 推荐</div>
+          </div>
+        </div>
+        <div class="spot-card-actions">
+          <button class="spot-action-btn spot-action-edit" onclick="event.stopPropagation();editSpot('${spot.id}')" title="编辑">✏️</button>
+          <button class="spot-action-btn spot-action-delete" onclick="event.stopPropagation();askDelete('${spot.id}')" title="删除">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allSpots.length;
+  document.getElementById('statCategories').textContent = new Set(allSpots.map(s => s.category)).size;
+  document.getElementById('statCurators').textContent = new Set(allSpots.map(s => s.curator)).size;
+}
+
+// ── Select ──
+function selectSpot(id) {
+  selectedSpotId = id;
+  renderMarkers();
+  renderSpotList();
+
+  const spot = allSpots.find(s => s.id === id);
+  if (spot) {
+    _map.panTo([spot.lng, spot.lat]);
+  }
+}
+
+// ── Tab ──
+function switchTab(tab) {
+  document.getElementById('tabList').classList.toggle('active', tab === 'list');
+  document.getElementById('tabEdit').classList.toggle('active', tab === 'edit');
+  document.getElementById('contentList').style.display = tab === 'list' ? 'block' : 'none';
+  document.getElementById('contentEdit').style.display = tab === 'edit' ? 'block' : 'none';
+}
+
+// ── Add / Edit ──
+function startAddSpot() {
+  document.getElementById('editId').value = '';
+  document.getElementById('editName').value = '';
+  document.getElementById('editCategory').value = '小吃';
+  document.getElementById('editCurator').value = '';
+  document.getElementById('editCuratorTitle').value = '';
+  document.getElementById('editDesc').value = '';
+  document.getElementById('editAddress').value = '';
+  document.getElementById('editLng').value = '';
+  document.getElementById('editLat').value = '';
+  editTags = [];
+  renderTagChips();
+
+  document.getElementById('editPanelIcon').textContent = '➕';
+  document.getElementById('editPanelTitle').textContent = '添加新店铺';
+  switchTab('edit');
+}
+
+function editSpot(id) {
+  const spot = allSpots.find(s => s.id === id);
+  if (!spot) return;
+
+  document.getElementById('editId').value = spot.id;
+  document.getElementById('editName').value = spot.name;
+  document.getElementById('editCategory').value = spot.category;
+  document.getElementById('editCurator').value = spot.curator;
+  document.getElementById('editCuratorTitle').value = spot.curatorTitle || '';
+  document.getElementById('editDesc').value = spot.desc;
+  document.getElementById('editAddress').value = spot.address || '';
+  document.getElementById('editLng').value = spot.lng;
+  document.getElementById('editLat').value = spot.lat;
+  editTags = [...(spot.tags || [])];
+  renderTagChips();
+
+  document.getElementById('editPanelIcon').textContent = '✏️';
+  document.getElementById('editPanelTitle').textContent = '编辑店铺';
+  switchTab('edit');
+  selectSpot(id);
+}
+
+function cancelEdit() {
+  switchTab('list');
+}
+
+function saveSpot() {
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('editName').value.trim();
+  const category = document.getElementById('editCategory').value;
+  const curator = document.getElementById('editCurator').value.trim();
+  const curatorTitle = document.getElementById('editCuratorTitle').value.trim();
+  const desc = document.getElementById('editDesc').value.trim();
+  const address = document.getElementById('editAddress').value.trim();
+  const lng = parseFloat(document.getElementById('editLng').value);
+  const lat = parseFloat(document.getElementById('editLat').value);
+
+  if (!name) { showToast('请输入店铺名称', 'error'); return; }
+  if (!curator) { showToast('请输入推荐人', 'error'); return; }
+  if (!desc) { showToast('请输入推荐语', 'error'); return; }
+  if (isNaN(lng) || isNaN(lat)) { showToast('请输入有效坐标', 'error'); return; }
+
+  const spot = { id: id || 'spot_' + Date.now(), name, category, curator, curatorTitle, desc, address, tags: [...editTags], lng, lat };
+
+  if (id) {
+    const idx = allSpots.findIndex(s => s.id === id);
+    if (idx >= 0) allSpots[idx] = spot;
+  } else {
+    allSpots.push(spot);
+  }
+
+  saveSpots(allSpots);
+  selectedSpotId = spot.id;
+  renderAll();
+  switchTab('list');
+  showToast(id ? '店铺已更新 ✓' : '店铺已添加 ✓', 'success');
+}
+
+// ── Tags ──
+function handleTagInput(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const val = e.target.value.trim();
+    if (val && !editTags.includes(val)) {
+      editTags.push(val);
+      renderTagChips();
+    }
+    e.target.value = '';
+  }
+}
+
+function removeTag(tag) {
+  editTags = editTags.filter(t => t !== tag);
+  renderTagChips();
+}
+
+function renderTagChips() {
+  const wrapper = document.getElementById('tagsWrapper');
+  const input = document.getElementById('tagInput');
+  wrapper.innerHTML = '';
+  editTags.forEach(tag => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.innerHTML = `${tag}<span class="tag-chip-remove" onclick="removeTag('${tag}')">✕</span>`;
+    wrapper.appendChild(chip);
+  });
+  wrapper.appendChild(input);
+}
+
+// ── Delete ──
+function askDelete(id) {
+  const spot = allSpots.find(s => s.id === id);
+  if (!spot) return;
+  pendingDeleteId = id;
+  document.getElementById('dialogMsg').textContent = `确定要删除「${spot.name}」吗？此操作不可撤销。`;
+  document.getElementById('dialogOverlay').classList.add('show');
+}
+
+function closeDialog() {
+  document.getElementById('dialogOverlay').classList.remove('show');
+  pendingDeleteId = null;
+}
+
+function confirmDelete() {
+  if (!pendingDeleteId) return;
+  allSpots = allSpots.filter(s => s.id !== pendingDeleteId);
+  saveSpots(allSpots);
+  if (selectedSpotId === pendingDeleteId) selectedSpotId = null;
+  renderAll();
+  closeDialog();
+  showToast('已删除', 'success');
+}
+
+// ── Picking ──
+function startPicking() {
+  isPicking = true;
+  document.getElementById('pickingBanner').classList.add('show');
+  document.getElementById('mapCrosshair').classList.add('show');
+  _map.setDefaultCursor('crosshair');
+}
+
+function stopPicking() {
+  isPicking = false;
+  document.getElementById('pickingBanner').classList.remove('show');
+  document.getElementById('mapCrosshair').classList.remove('show');
+  _map.setDefaultCursor('default');
+}
+
+function cancelPicking() {
+  stopPicking();
+}
+
+// Make coordinate fields clickable to trigger picking
+document.getElementById('editLng').addEventListener('focus', () => {
+  if (!isPicking) startPicking();
+});
+
+// ── Publish ──
+function publishMap() {
+  showToast('🚀 地图已发布，C端用户可查看最新内容', 'success');
+}
+
+// ── Toast ──
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+
+<script>
+// 高德地图安全密钥配置（明文方式）
+window._AMapSecurityConfig = {
+  securityJsCode: localStorage.getItem('amap_security_code') || '1cec5aea265999d7fa14e96217c041b5',
+};
+</script>
+<script>
+(function() {
+  const key = localStorage.getItem('amap_key_override') || 'bff961046fdefbc7fa4bb67a40e7ef93';
+  const s = document.createElement('script');
+  s.src = 'https://webapi.amap.com/maps?v=2.0&key=' + key + '&callback=initAMap';
+  document.body.appendChild(s);
+})();
+</script>
+</body>
+</html>

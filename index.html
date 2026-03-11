@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>美食地图 · 名家推荐</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream: #F5F0E8;
+      --warm-white: #FDFAF4;
+      --brown: #5C3D2E;
+      --brown-light: #8B6355;
+      --brown-pale: #C4A882;
+      --accent: #D4845A;
+      --accent-light: #E8A882;
+      --green: #7A9E7E;
+      --green-light: #A8C5A0;
+      --text-dark: #2C1810;
+      --text-mid: #6B4C3B;
+      --text-light: #9B7B6A;
+      --border: #E0D5C5;
+      --shadow: rgba(92, 61, 46, 0.12);
+    }
+
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: relative;
+      z-index: 100;
+      background: var(--warm-white);
+      border-bottom: 1.5px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--brown);
+      letter-spacing: 0.05em;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-light);
+      letter-spacing: 0.1em;
+      margin-top: 1px;
+    }
+
+    .header-filters {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-mid);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .city-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-mid);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    /* ── Map Container ── */
+    .map-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Custom Marker ── */
+    .custom-marker {
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .custom-marker:hover {
+      transform: scale(1.1) translateY(-2px);
+    }
+
+    .marker-pin {
+      width: 44px;
+      height: 44px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border: 2.5px solid white;
+      position: relative;
+    }
+
+    .marker-emoji {
+      transform: rotate(45deg);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .marker-label {
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      background: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      color: var(--text-dark);
+      font-weight: 500;
+      box-shadow: 0 2px 6px var(--shadow);
+      border: 1px solid var(--border);
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Popup Card ── */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .popup-card {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      width: 340px;
+      background: var(--warm-white);
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(92, 61, 46, 0.2);
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      pointer-events: all;
+      opacity: 0;
+      display: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .popup-card.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .popup-cover {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .popup-cover-placeholder {
+      font-size: 60px;
+    }
+
+    .popup-category-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .popup-body {
+      padding: 16px 20px 20px;
+    }
+
+    .popup-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .popup-curator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .curator-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .curator-name {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .curator-tag {
+      font-size: 11px;
+      background: var(--cream);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .popup-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+
+    .popup-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .popup-tag {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      background: var(--cream);
+      color: var(--text-mid);
+      border: 1px solid var(--border);
+    }
+
+    .popup-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .popup-address {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-light);
+      flex: 1;
+    }
+
+    .popup-nav-btn {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .popup-nav-btn:hover {
+      background: var(--brown);
+    }
+
+    .popup-source {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0 0;
+      margin-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .popup-source-label {
+      font-size: 11px;
+      color: var(--text-light);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .popup-source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      background: rgba(212, 132, 90, 0.08);
+      border: 1px solid rgba(212, 132, 90, 0.25);
+      border-radius: 20px;
+      padding: 3px 10px;
+      transition: all 0.2s;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .popup-source-link:hover {
+      background: rgba(212, 132, 90, 0.18);
+      color: var(--brown);
+    }
+
+    .popup-source-platform {
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .popup-source-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-mid);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    /* ── Side List Panel ── */
+    .side-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 320px;
+      height: 100%;
+      background: var(--warm-white);
+      border-left: 1.5px solid var(--border);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      box-shadow: -4px 0 20px var(--shadow);
+    }
+
+    .side-panel.open {
+      transform: translateX(0);
+    }
+
+    .side-panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .side-panel-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .side-panel-count {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .side-panel-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .side-panel-list::-webkit-scrollbar { width: 4px; }
+    .side-panel-list::-webkit-scrollbar-track { background: transparent; }
+    .side-panel-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .list-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 4px;
+      border: 1.5px solid transparent;
+    }
+
+    .list-item:hover {
+      background: var(--cream);
+    }
+
+    .list-item.active {
+      background: var(--cream);
+      border-color: var(--border);
+    }
+
+    .list-item-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .list-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .list-item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-item-curator {
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .list-item-desc {
+      font-size: 12px;
+      color: var(--text-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Floating Buttons ── */
+    .fab-group {
+      position: absolute;
+      bottom: 32px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 60;
+    }
+
+    .fab {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 14px var(--shadow);
+      transition: all 0.2s;
+    }
+
+    .fab:hover {
+      transform: scale(1.08);
+    }
+
+    .fab-list {
+      background: var(--warm-white);
+      color: var(--text-dark);
+      border: 1.5px solid var(--border);
+    }
+
+    .fab-location {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      position: absolute;
+      bottom: 32px;
+      left: 24px;
+      background: var(--warm-white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      z-index: 60;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+
+    .legend-title {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-mid);
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Loading ── */
+    .map-loading {
+      position: absolute;
+      inset: 0;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      gap: 16px;
+    }
+
+    .loading-icon {
+      font-size: 48px;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .loading-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      color: var(--text-mid);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: var(--brown);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .header-filters { display: none; }
+      .side-panel { width: 100%; }
+      .popup-card { width: calc(100vw - 32px); bottom: 80px; }
+      .legend { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🍜</div>
+    <div>
+      <div class="logo-text">美食地图</div>
+      <div class="logo-sub">名家推荐 · 精选好味</div>
+    </div>
+  </div>
+
+  <div class="header-filters" id="filterGroup">
+    <button class="filter-btn active" data-category="all" onclick="filterByCategory('all', this)">全部</button>
+    <button class="filter-btn" data-category="川菜" onclick="filterByCategory('川菜', this)">🌶 川菜</button>
+    <button class="filter-btn" data-category="粤菜" onclick="filterByCategory('粤菜', this)">🦐 粤菜</button>
+    <button class="filter-btn" data-category="日料" onclick="filterByCategory('日料', this)">🍣 日料</button>
+    <button class="filter-btn" data-category="小吃" onclick="filterByCategory('小吃', this)">🥟 小吃</button>
+    <button class="filter-btn" data-category="甜品" onclick="filterByCategory('甜品', this)">🍰 甜品</button>
+    <button class="filter-btn" data-category="咖啡" onclick="filterByCategory('咖啡', this)">☕ 咖啡</button>
+  </div>
+
+  <div class="header-right">
+    <div class="city-selector">📍 北京</div>
+  </div>
+</header>
+
+<div class="map-wrapper">
+  <div class="map-loading" id="mapLoading">
+    <div class="loading-icon">🗺️</div>
+    <div class="loading-text">地图加载中…</div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="legend">
+    <div class="legend-title">图例</div>
+    <div class="legend-items" id="legendItems"></div>
+  </div>
+
+  <div class="fab-group">
+    <button class="fab fab-list" onclick="toggleSidePanel()" title="店铺列表">📋</button>
+    <button class="fab fab-location" onclick="locateUser()" title="我的位置">📍</button>
+  </div>
+
+  <div class="side-panel" id="sidePanel">
+    <div class="side-panel-header">
+      <div class="side-panel-title">精选店铺</div>
+      <div class="side-panel-count" id="sidePanelCount">共 0 家</div>
+    </div>
+    <div class="side-panel-list" id="sidePanelList"></div>
+  </div>
+
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-card" id="popupCard">
+      <div class="popup-cover" id="popupCover">
+        <span class="popup-cover-placeholder" id="popupEmoji"></span>
+        <span class="popup-category-badge" id="popupCategory"></span>
+        <button class="popup-close" onclick="closePopup()">✕</button>
+      </div>
+      <div class="popup-body">
+        <div class="popup-name" id="popupName"></div>
+        <div class="popup-curator" id="popupCurator"></div>
+        <div class="popup-desc" id="popupDesc"></div>
+        <div class="popup-tags" id="popupTags"></div>
+        <div class="popup-footer">
+          <div class="popup-address">
+            <span>📍</span>
+            <span id="popupAddressText"></span>
+          </div>
+          <button class="popup-nav-btn" id="popupNavBtn">导航前往</button>
+        </div>
+        <div class="popup-source" id="popupSource" style="display:none">
+          <span class="popup-source-label">来源</span>
+          <a class="popup-source-link" id="popupSourceLink" href="#" target="_blank" rel="noopener">
+            <span class="popup-source-platform" id="popupSourcePlatform"></span>
+            <span class="popup-source-title" id="popupSourceTitle"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'food_map_spots';
+
+const CATEGORY_CONFIG = {
+  '川菜':  { emoji: '🌶', color: '#E85D4A' },
+  '粤菜':  { emoji: '🦐', color: '#E8A84A' },
+  '日料':  { emoji: '🍣', color: '#4A8BE8' },
+  '小吃':  { emoji: '🥟', color: '#7A9E7E' },
+  '甜品':  { emoji: '🍰', color: '#D4845A' },
+  '咖啡':  { emoji: '☕', color: '#8B6355' },
+  '火锅':  { emoji: '🍲', color: '#C0392B' },
+  '烧烤':  { emoji: '🍖', color: '#E67E22' },
+  '西餐':  { emoji: '🥩', color: '#8E44AD' },
+  '湘菜':  { emoji: '🫙', color: '#B5451B' },
+  '淮扬菜': { emoji: '🦢', color: '#5B8A6E' },
+  '东北菜': { emoji: '🥘', color: '#7B5EA7' },
+  '其他':  { emoji: '🍽', color: '#95A5A6' },
+};
+
+function getDefaultSpots() {
+  return [
+    {
+      id: 'spot_9', name: '厨忆小湖南', category: '湘菜',
+      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
+      desc: '隋坡亲探推荐的正宗湘菜小馆，口味正宗稳定，老板是地道湖南人，食客中湖南人居多，这本身就是最好的背书。三下锅、辣椒炒肉等家常湘菜火候到位，分量足，米饭也好吃，是北京难得的正宗湖南家乡味。',
+      tags: ['湘菜', '正宗', '家常', '性价比高', '隋坡推荐'],
+      address: '北京市大兴区旧忠路五环国际底商12-102', lng: 116.3850, lat: 39.7920,
+      sourceUrl: 'https://www.douyin.com/video/7573039940246818074',
+      sourcePlatform: '抖音',
+      sourceTitle: '特厨探店｜求了好久，才套出来的特级厨师珍藏小馆—厨忆小湖南',
+    },
+    {
+      id: 'spot_10', name: '纪家小馆', category: '东北菜',
+      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
+      desc: '隋坡探店后大加赞赏——"吃着舒服的店真的不多见"。这家藏在西红门的东北菜小馆，食材新鲜，手艺扎实，招牌肘子皮糯肉烂，酱香浓郁。小馆子备菜少，天天都是新鲜食材，这正是隋坡最看重的。',
+      tags: ['东北菜', '肘子', '家常', '新鲜食材', '隋坡推荐'],
+      address: '北京市大兴区郁花园二里东门底商16号楼1层', lng: 116.3620, lat: 39.7780,
+      sourceUrl: 'https://www.douyin.com/video/7612326904330292523',
+      sourcePlatform: '抖音',
+      sourceTitle: '特厨探店｜吃着舒服的店真的不多见—纪家小馆',
+    },
+    {
+      id: 'spot_11', name: '喜鼎海胆水饺', category: '小吃',
+      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
+      desc: '隋坡以专业厨师视角点评推荐，海胆水饺是这里的绝对主角。馅料鲜甜，海胆量足，饺子皮薄而有嚼劲。作为希尔顿行政总厨，隋坡对食材品质要求极高，能得到他认可的海胆饺子，鲜度与工艺均属上乘。',
+      tags: ['海胆', '水饺', '三里屯', '网红', '隋坡推荐'],
+      address: '北京市朝阳区三里屯路11号三里屯太古里北区B1', lng: 116.4551, lat: 39.9374,
+      sourceUrl: 'https://www.douyin.com/video/7516216947315346751',
+      sourcePlatform: '抖音',
+      sourceTitle: '特厨隋坡 2025年度美食榜单（含喜鼎海胆水饺）',
+    },
+    {
+      id: 'spot_12', name: '淮四九宴·老饭骨大师技', category: '淮扬菜',
+      curator: '老饭骨', curatorTitle: '国宴大师团队·抖音美食IP',
+      desc: '由抖音千万粉丝美食IP"老饭骨"亲自开办，隐藏在前门青云胡同梅兰芳大师故居旧址内。淮扬菜为底，国宴技法加持，招牌"现磨胡椒响油鳝糊"热油一浇香气四溢，"细切筷子头清炖松茸狮子头"鲜掉眉毛，"十年花椒东坡肉"肥而不腻。四合院环境古朴雅致，是北京最有文化底蕴的淮扬菜馆之一。',
+      tags: ['淮扬菜', '国宴', '老饭骨', '四合院', '前门', '老饭骨推荐'],
+      address: '北京市东城区青云胡同（青云贰拾叁艺术中心内院）', lng: 116.3960, lat: 39.8990,
+      sourceUrl: 'https://www.bilibili.com/video/BV1QSt9zdEe5',
+      sourcePlatform: 'B站',
+      sourceTitle: '二伯评老饭骨淮四九宴，毫不留情',
+    },
+    {
+      id: 'spot_13', name: '四华家常菜', category: '川菜',
+      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
+      desc: '隋坡2025年度美食榜单入选餐厅，成都金牛区一家让特级厨师都想"挖人"的家常菜小馆。趴锅边吃的市井氛围，拌白肉、水煮肉片等川菜家常味道纯正，食材新鲜，分量实在，性价比极高。隋坡评价：这个价格，这个分量，性价比好高。',
+      tags: ['川菜', '家常菜', '成都', '性价比', '隋坡年度榜单'],
+      address: '成都市金牛区古柏中心村西街', lng: 104.0520, lat: 30.6940,
+      sourceUrl: 'https://www.douyin.com/video/7516216947315346751',
+      sourcePlatform: '抖音',
+      sourceTitle: '特厨探店｜在成都吃趴锅边吃的小馆是什么体验—四华家常菜',
+      // 注：此为四华家常菜专属探店视频
+    },
+  ];
+}
+
+// 数据版本号：修改此值可强制清除旧的模拟数据，只保留真实餐厅
+const DATA_VERSION = 'v3_with_source';
+
+function loadSpots() {
+  try {
+    // 版本不匹配时清除旧数据
+    if (localStorage.getItem('food_map_version') !== DATA_VERSION) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem('food_map_version', DATA_VERSION);
+    }
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  const defaults = getDefaultSpots();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+  return defaults;
+}
+
+let _map = null;
+let markers = [];
+let allSpots = [];
+let currentFilter = 'all';
+let activeSpotId = null;
+
+window.initAMap = function() {
+  document.getElementById('mapLoading').style.display = 'none';
+
+  _map = new AMap.Map('map', {
+    zoom: 13,
+    center: [116.3974, 39.9093],
+    mapStyle: 'amap://styles/whitesmoke',
+  });
+
+  allSpots = loadSpots();
+  renderMarkers(allSpots);
+  renderSidePanel(allSpots);
+  renderLegend();
+
+  _map.on('click', () => closePopup());
+};
+
+function renderMarkers(spots) {
+  markers.forEach(m => m.setMap(null));
+  markers = [];
+
+  spots.forEach(spot => {
+    const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
+    const markerEl = document.createElement('div');
+    markerEl.className = 'custom-marker';
+    markerEl.innerHTML = `
+      <div class="marker-pin" style="background:${cfg.color}">
+        <span class="marker-emoji">${cfg.emoji}</span>
+      </div>
+      <div class="marker-label">${spot.name}</div>
+    `;
+
+    const marker = new AMap.Marker({
+      position: [spot.lng, spot.lat],
+      content: markerEl,
+      offset: new AMap.Pixel(-22, -44),
+      zIndex: 100,
+    });
+
+    marker.on('click', (e) => {
+      e.stopPropagation && e.stopPropagation();
+      showPopup(spot);
+    });
+
+    marker.setMap(_map);
+    marker._spotId = spot.id;
+    markers.push(marker);
+  });
+}
+
+function showPopup(spot) {
+  activeSpotId = spot.id;
+  const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
+
+  document.getElementById('popupEmoji').textContent = cfg.emoji;
+  document.getElementById('popupCategory').textContent = spot.category;
+  document.getElementById('popupName').textContent = spot.name;
+  document.getElementById('popupDesc').textContent = spot.desc;
+  document.getElementById('popupAddressText').textContent = spot.address;
+
+  document.getElementById('popupCurator').innerHTML = `
+    <div class="curator-avatar">${spot.curator[0]}</div>
+    <span class="curator-name">${spot.curator}</span>
+    <span class="curator-tag">${spot.curatorTitle || '美食家'}</span>
+  `;
+
+  document.getElementById('popupTags').innerHTML = (spot.tags || []).map(t =>
+    `<span class="popup-tag">${t}</span>`
+  ).join('');
+
+  document.getElementById('popupNavBtn').onclick = () => {
+    window.open(`https://uri.amap.com/navigation?to=${spot.lng},${spot.lat},${encodeURIComponent(spot.name)}&mode=car&src=food-map`, '_blank');
+  };
+
+  // 来源链接
+  const sourceEl = document.getElementById('popupSource');
+  if (spot.sourceUrl) {
+    document.getElementById('popupSourceLink').href = spot.sourceUrl;
+    document.getElementById('popupSourcePlatform').textContent = spot.sourcePlatform || '查看原视频';
+    document.getElementById('popupSourceTitle').textContent = spot.sourceTitle ? `· ${spot.sourceTitle}` : '';
+    sourceEl.style.display = 'flex';
+  } else {
+    sourceEl.style.display = 'none';
+  }
+
+  document.getElementById('popupCover').style.background =
+    `linear-gradient(135deg, ${cfg.color}44, ${cfg.color}99)`;
+
+  const card = document.getElementById('popupCard');
+  card.style.display = 'block';
+  requestAnimationFrame(() => card.classList.add('visible'));
+
+  _map.panTo([spot.lng, spot.lat]);
+
+  document.querySelectorAll('.list-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === spot.id);
+  });
+}
+
+function closePopup() {
+  const card = document.getElementById('popupCard');
+  card.classList.remove('visible');
+  setTimeout(() => { card.style.display = 'none'; }, 300);
+  activeSpotId = null;
+  document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+}
+
+function renderSidePanel(spots) {
+  document.getElementById('sidePanelCount').textContent = `共 ${spots.length} 家`;
+  document.getElementById('sidePanelList').innerHTML = spots.map(spot => {
+    const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
+    return `
+      <div class="list-item" data-id="${spot.id}" onclick="onListItemClick('${spot.id}')">
+        <div class="list-item-icon" style="background:linear-gradient(135deg,${cfg.color}33,${cfg.color}66)">
+          ${cfg.emoji}
+        </div>
+        <div class="list-item-info">
+          <div class="list-item-name">${spot.name}</div>
+          <div class="list-item-curator">✦ ${spot.curator} 推荐</div>
+          <div class="list-item-desc">${spot.desc}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function onListItemClick(id) {
+  const spot = allSpots.find(s => s.id === id);
+  if (spot) showPopup(spot);
+}
+
+function toggleSidePanel() {
+  document.getElementById('sidePanel').classList.toggle('open');
+}
+
+function filterByCategory(category, btn) {
+  currentFilter = category;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = category === 'all' ? allSpots : allSpots.filter(s => s.category === category);
+  renderMarkers(filtered);
+  renderSidePanel(filtered);
+  closePopup();
+}
+
+function renderLegend() {
+  const usedCategories = [...new Set(allSpots.map(s => s.category))];
+  document.getElementById('legendItems').innerHTML = usedCategories.map(cat => {
+    const cfg = CATEGORY_CONFIG[cat] || CATEGORY_CONFIG['其他'];
+    return `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${cfg.color}"></div>
+        <span>${cfg.emoji} ${cat}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function locateUser() {
+  if (!navigator.geolocation) { showToast('您的浏览器不支持定位'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      _map.setCenter([pos.coords.longitude, pos.coords.latitude]);
+      _map.setZoom(15);
+      showToast('已定位到您的位置');
+    },
+    () => showToast('定位失败，请检查权限设置')
+  );
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_KEY) {
+    allSpots = loadSpots();
+    const filtered = currentFilter === 'all' ? allSpots : allSpots.filter(s => s.category === currentFilter);
+    renderMarkers(filtered);
+    renderSidePanel(filtered);
+    renderLegend();
+    showToast('地图数据已更新');
+  }
+});
+</script>
+
+<script>
+// 高德地图安全密钥配置（明文方式，参考官方文档：https://lbs.amap.com/api/javascript-api-v2/guide/abc/jscode）
+// 注意：此配置必须在 JS API 脚本加载之前设置，否则无效
+window._AMapSecurityConfig = {
+  securityJsCode: localStorage.getItem('amap_security_code') || '1cec5aea265999d7fa14e96217c041b5',
+};
+</script>
+<script>
+(function() {
+  const key = localStorage.getItem('amap_key_override') || 'bff961046fdefbc7fa4bb67a40e7ef93';
+  const s = document.createElement('script');
+  s.src = 'https://webapi.amap.com/maps?v=2.0&key=' + key + '&callback=initAMap';
+  document.body.appendChild(s);
+})();
+</script>
+</body>
+</html>
