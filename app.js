@@ -18,27 +18,27 @@ let activeSpotId = null;
 
 // ── 地区提取 ──────────────────────────────────────────────
 const REGION_MAP = [
-  { key: '北京', match: ['北京'] },
-  { key: '上海', match: ['上海'] },
-  { key: '天津', match: ['天津'] },
-  { key: '重庆', match: ['重庆'] },
-  { key: '广东', match: ['广东', '广州', '深圳', '汕头', '潮州', '梅州', '珠海', '佛山', '东莞'] },
-  { key: '四川', match: ['四川', '成都', '宜宾', '乐山', '自贡', '泸州', '广安'] },
-  { key: '湖南', match: ['湖南', '长沙', '株洲', '湘潭'] },
-  { key: '湖北', match: ['湖北', '武汉', '宜昌', '十堰'] },
-  { key: '山东', match: ['山东', '济南', '青岛', '烟台', '淄博', '菏泽'] },
-  { key: '河南', match: ['河南', '郑州', '洛阳', '开封', '平顶山', '周口', '登封'] },
-  { key: '浙江', match: ['浙江', '杭州', '宁波', '温州', '衢州'] },
-  { key: '江苏', match: ['江苏', '南京', '苏州', '扬州', '徐州', '无锡'] },
-  { key: '陕西', match: ['陕西', '西安'] },
-  { key: '甘肃', match: ['甘肃', '兰州'] },
-  { key: '吉林', match: ['吉林', '长春'] },
-  { key: '黑龙江', match: ['黑龙江', '哈尔滨'] },
-  { key: '山西', match: ['山西', '太原', '临汾'] },
-  { key: '河北', match: ['河北', '保定', '石家庄', '沧州'] },
-  { key: '贵州', match: ['贵州', '贵阳'] },
-  { key: '宁夏', match: ['宁夏', '银川'] },
-  { key: '新疆', match: ['新疆'] },
+  { key: '北京', match: ['北京'], center: [116.4074, 39.9042], zoom: 11 },
+  { key: '上海', match: ['上海'], center: [121.4737, 31.2304], zoom: 11 },
+  { key: '天津', match: ['天津'], center: [117.1901, 39.1256], zoom: 11 },
+  { key: '重庆', match: ['重庆'], center: [106.5516, 29.5630], zoom: 11 },
+  { key: '广东', match: ['广东', '广州', '深圳', '汕头', '潮州', '梅州', '珠海', '佛山', '东莞'], center: [113.2644, 23.1291], zoom: 10 },
+  { key: '四川', match: ['四川', '成都', '宜宾', '乐山', '自贡', '泸州', '广安'], center: [104.0657, 30.6595], zoom: 9 },
+  { key: '湖南', match: ['湖南', '长沙', '株洲', '湘潭'], center: [112.9388, 28.2278], zoom: 10 },
+  { key: '湖北', match: ['湖北', '武汉', '宜昌', '十堰'], center: [114.3054, 30.5931], zoom: 10 },
+  { key: '山东', match: ['山东', '济南', '青岛', '烟台', '淄博', '菏泽'], center: [117.0009, 36.6758], zoom: 9 },
+  { key: '河南', match: ['河南', '郑州', '洛阳', '开封', '平顶山', '周口', '登封'], center: [113.6254, 34.7466], zoom: 9 },
+  { key: '浙江', match: ['浙江', '杭州', '宁波', '温州', '衢州'], center: [120.1536, 30.2875], zoom: 10 },
+  { key: '江苏', match: ['江苏', '南京', '苏州', '扬州', '徐州', '无锡'], center: [118.7969, 32.0603], zoom: 9 },
+  { key: '陕西', match: ['陕西', '西安'], center: [108.9480, 34.2632], zoom: 10 },
+  { key: '甘肃', match: ['甘肃', '兰州'], center: [103.8343, 36.0611], zoom: 10 },
+  { key: '吉林', match: ['吉林', '长春'], center: [125.3245, 43.8868], zoom: 10 },
+  { key: '黑龙江', match: ['黑龙江', '哈尔滨'], center: [126.6424, 45.7568], zoom: 10 },
+  { key: '山西', match: ['山西', '太原', '临汾'], center: [112.5490, 37.8570], zoom: 9 },
+  { key: '河北', match: ['河北', '保定', '石家庄', '沧州'], center: [114.5020, 38.0454], zoom: 9 },
+  { key: '贵州', match: ['贵州', '贵阳'], center: [106.7135, 26.5783], zoom: 10 },
+  { key: '宁夏', match: ['宁夏', '银川'], center: [106.2782, 38.4664], zoom: 10 },
+  { key: '新疆', match: ['新疆'], center: [87.6177, 43.7928], zoom: 8 },
 ];
 
 function extractRegion(spot) {
@@ -136,21 +136,27 @@ function renderMarkers(spots) {
         })
         .catch(() => {
           // fetch 失败，降级用本地 icon
-          img.style.display = '';
-          emojiFb.style.display = 'none';
-          img.src = fallbackImg;
           img.onerror = function() {
             this.style.display = 'none';
             emojiFb.style.display = 'flex';
           };
+          img.onload = function() {
+            img.style.display = '';
+            emojiFb.style.display = 'none';
+          };
+          img.src = fallbackImg;
         });
     } else {
       // 无外部图片，直接用本地 icon
-      img.src = fallbackImg;
       img.onerror = function() {
         this.style.display = 'none';
         emojiFb.style.display = 'flex';
       };
+      img.onload = function() {
+        img.style.display = '';
+        emojiFb.style.display = 'none';
+      };
+      img.src = fallbackImg;
     }
 
     const marker = new AMap.Marker({
@@ -350,28 +356,39 @@ function renderSidePanel(spots) {
       return;
     }
 
-    fetch(spot.photo, { referrerPolicy: 'no-referrer' })
-      .then(r => r.ok ? r.blob() : Promise.reject())
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        _sidePanelBlobCache[spot.id] = url;
-        // 确认 DOM 元素还在（列表可能已重新渲染）
-        const el = document.getElementById(`thumb_${spot.id}`);
-        if (el) _applyThumbImage(el, url);
-      })
-      .catch(() => {});
+const iconUrl = getIconPath(spot.id);
+fetch(spot.photo, { referrerPolicy: 'no-referrer' })
+.then(r => r.ok ? r.blob() : Promise.reject())
+.then(blob => {
+const url = URL.createObjectURL(blob);
+_sidePanelBlobCache[spot.id] = url;
+// 确认 DOM 元素还在（列表可能已重新渲染）
+const el = document.getElementById(`thumb_${spot.id}`);
+if (el) _applyThumbImage(el, url);
+})
+.catch(() => {
+// fetch 失败，降级用本地 icon
+const el = document.getElementById(`thumb_${spot.id}`);
+if (el) _applyThumbImage(el, iconUrl, true);
+})
+
   });
 }
 
-function _applyThumbImage(thumbEl, blobUrl) {
-  const img = document.createElement('img');
-  img.className = 'list-item-thumb-img';
-  img.alt = '';
-  img.onload = () => {
-    thumbEl.querySelector('.list-item-thumb-emoji').style.display = 'none';
-  };
-  img.src = blobUrl;
-  thumbEl.insertBefore(img, thumbEl.firstChild);
+function _applyThumbImage(thumbEl, imgUrl) {
+const img = document.createElement('img');
+img.className = 'list-item-thumb-img';
+img.alt = '';
+const emojiEl = thumbEl.querySelector('.list-item-thumb-emoji');
+img.onload = () => {
+  if (emojiEl) emojiEl.style.display = 'none';
+};
+img.onerror = () => {
+  img.remove();
+  // 本地 icon 也失败时保持 emoji 显示
+};
+img.src = imgUrl;
+thumbEl.insertBefore(img, thumbEl.firstChild);
 }
 
 // ── 侧边栏下拉筛选（口味 + 推荐人）────────────────────────
@@ -597,16 +614,23 @@ function selectRegion(region) {
   closePopup();
   closeRegionDropdown();
 
-  // 选了具体地区，地图自动飞过去
+  // 选了具体地区，地图飞到该省市中心（用预设坐标，不用店铺平均值）
   if (region !== 'all') {
-    const filtered = getFilteredSpots();
-    if (filtered.length > 0) {
-      const lngs = filtered.map(s => s.lng);
-      const lats = filtered.map(s => s.lat);
-      const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
-      const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-      _map.setCenter([centerLng, centerLat]);
-      _map.setZoom(filtered.length === 1 ? 15 : 11);
+    const regionCfg = REGION_MAP.find(r => r.key === region);
+    if (regionCfg && regionCfg.center) {
+      _map.setCenter(regionCfg.center);
+      _map.setZoom(regionCfg.zoom || 11);
+    } else {
+      // 没有预设坐标时才用店铺中心
+      const filtered = getFilteredSpots();
+      if (filtered.length > 0) {
+        const lngs = filtered.map(s => s.lng).filter(v => v > 70 && v < 140);
+        const lats = filtered.map(s => s.lat).filter(v => v > 15 && v < 55);
+        if (lngs.length && lats.length) {
+          _map.setCenter([(Math.min(...lngs)+Math.max(...lngs))/2, (Math.min(...lats)+Math.max(...lats))/2]);
+          _map.setZoom(11);
+        }
+      }
     }
   } else {
     _map.setCenter([116.3974, 39.9093]);
