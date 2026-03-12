@@ -4,770 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>美食地图 · 名家推荐</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --cream: #F5F0E8;
-      --warm-white: #FDFAF4;
-      --brown: #5C3D2E;
-      --brown-light: #8B6355;
-      --brown-pale: #C4A882;
-      --accent: #D4845A;
-      --accent-light: #E8A882;
-      --green: #7A9E7E;
-      --green-light: #A8C5A0;
-      --text-dark: #2C1810;
-      --text-mid: #6B4C3B;
-      --text-light: #9B7B6A;
-      --border: #E0D5C5;
-      --shadow: rgba(92, 61, 46, 0.12);
-    }
-
-    body {
-      font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
-      background: var(--cream);
-      color: var(--text-dark);
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-/* ── Header ── */
-.header {
-position: relative;
-z-index: 100;
-background: var(--warm-white);
-border-bottom: none;
-padding: 0 24px;
-height: 56px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-box-shadow: none;
-flex-shrink: 0;
-}
-
-/* ── Filter Bar ── */
-.filter-bar {
-position: relative;
-z-index: 99;
-background: var(--warm-white);
-border-bottom: 1px solid var(--border);
-padding: 0 16px;
-height: 44px;
-display: flex;
-align-items: center;
-flex-shrink: 0;
-}
-
-.curator-bar {
-background: #FDFAF4;
-border-bottom: 1.5px solid var(--border);
-box-shadow: 0 2px 12px var(--shadow);
-}
-
-.filter-bar-label {
-font-size: 11px;
-color: var(--text-light);
-font-weight: 600;
-letter-spacing: 0.08em;
-white-space: nowrap;
-margin-right: 4px;
-padding-right: 8px;
-border-right: 1px solid var(--border);
-}
-
-.curator-btn {
-display: flex;
-align-items: center;
-gap: 5px;
-}
-
-.curator-dot {
-width: 7px;
-height: 7px;
-border-radius: 50%;
-display: inline-block;
-background: var(--accent);
-}
-
-.curator-suipo .curator-dot { background: #D4845A; }
-.curator-laofangu .curator-dot { background: #5B8A6E; }
-
-.curator-suipo.active { background: #D4845A; border-color: #D4845A; }
-.curator-laofangu.active { background: #5B8A6E; border-color: #5B8A6E; }
-
-    .header-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--accent);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    .logo-text {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--brown);
-      letter-spacing: 0.05em;
-    }
-
-    .logo-sub {
-      font-size: 11px;
-      color: var(--text-light);
-      letter-spacing: 0.1em;
-      margin-top: 1px;
-    }
-
-.header-filters {
-display: flex;
-gap: 6px;
-align-items: center;
-flex-wrap: nowrap;
-flex: 1;
-min-width: 0;
-overflow-x: auto;
-scrollbar-width: none;
--ms-overflow-style: none;
-}
-.header-filters::-webkit-scrollbar { display: none; }
-
-    .filter-btn {
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text-mid);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .city-selector {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text-mid);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    /* ── Map Container ── */
-    .map-wrapper {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* ── Custom Marker ── */
-    .custom-marker {
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .custom-marker:hover {
-      transform: scale(1.12) translateY(-3px);
-    }
-
-    /* 照片圆形图标 */
-    .marker-photo-wrap {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 3px solid white;
-      box-shadow: 0 3px 10px rgba(92,61,46,0.28);
-      background: var(--cream);
-      position: relative;
-    }
-
-    .marker-photo-wrap::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 8px solid white;
-      filter: drop-shadow(0 2px 2px rgba(92,61,46,0.18));
-    }
-
-    .marker-photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* fallback emoji pin（无照片时） */
-    .marker-pin {
-      width: 44px;
-      height: 44px;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      border: 2.5px solid white;
-      position: relative;
-    }
-
-    .marker-emoji {
-      transform: rotate(45deg);
-      font-size: 20px;
-      line-height: 1;
-    }
-
-    .marker-label {
-      margin-top: 10px;
-      white-space: nowrap;
-      background: white;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 11px;
-      color: var(--text-dark);
-      font-weight: 500;
-      box-shadow: 0 2px 6px var(--shadow);
-      border: 1px solid var(--border);
-      max-width: 80px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* ── Popup Card ── */
-    .popup-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      pointer-events: none;
-    }
-
-    .popup-card {
-      position: absolute;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      width: 340px;
-      background: var(--warm-white);
-      border-radius: 20px;
-      box-shadow: 0 8px 40px rgba(92, 61, 46, 0.2);
-      border: 1.5px solid var(--border);
-      overflow: hidden;
-      pointer-events: all;
-      opacity: 0;
-      display: none;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .popup-card.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .popup-cover {
-      width: 100%;
-      height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      background: var(--cream);
-    }
-
-    .popup-cover-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .popup-cover-placeholder {
-      font-size: 60px;
-    }
-
-    .popup-category-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 600;
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-
-    .popup-body {
-      padding: 16px 20px 20px;
-    }
-
-    .popup-name {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 4px;
-    }
-
-    .popup-curator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .curator-avatar {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: white;
-      font-weight: 600;
-    }
-
-    .curator-name {
-      font-size: 12px;
-      color: var(--text-light);
-    }
-
-    .curator-tag {
-      font-size: 11px;
-      background: var(--cream);
-      color: var(--accent);
-      padding: 2px 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .popup-desc {
-      font-size: 13px;
-      color: var(--text-mid);
-      line-height: 1.7;
-      margin-bottom: 14px;
-    }
-
-    .popup-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-
-    .popup-tag {
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      background: var(--cream);
-      color: var(--text-mid);
-      border: 1px solid var(--border);
-    }
-
-    .popup-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .popup-address {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: var(--text-light);
-      flex: 1;
-    }
-
-    .popup-nav-btn {
-      padding: 8px 16px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s;
-    }
-
-    .popup-nav-btn:hover {
-      background: var(--brown);
-    }
-
-    .popup-source {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0 0;
-      margin-top: 10px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .popup-source-label {
-      font-size: 11px;
-      color: var(--text-light);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .popup-source-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--accent);
-      text-decoration: none;
-      background: rgba(212, 132, 90, 0.08);
-      border: 1px solid rgba(212, 132, 90, 0.25);
-      border-radius: 20px;
-      padding: 3px 10px;
-      transition: all 0.2s;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 100%;
-    }
-
-    .popup-source-link:hover {
-      background: rgba(212, 132, 90, 0.18);
-      color: var(--brown);
-    }
-
-    .popup-source-platform {
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .popup-source-title {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .popup-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 28px;
-      height: 28px;
-      background: rgba(255,255,255,0.9);
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: var(--text-mid);
-      box-shadow: 0 2px 6px var(--shadow);
-    }
-
-    /* ── Side List Panel ── */
-    .side-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 320px;
-      height: 100%;
-      background: var(--warm-white);
-      border-left: 1.5px solid var(--border);
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      box-shadow: -4px 0 20px var(--shadow);
-    }
-
-    .side-panel.open {
-      transform: translateX(0);
-    }
-
-    .side-panel-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .side-panel-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 4px;
-    }
-
-    .side-panel-count {
-      font-size: 12px;
-      color: var(--text-light);
-    }
-
-    .side-panel-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-    }
-
-    .side-panel-list::-webkit-scrollbar { width: 4px; }
-    .side-panel-list::-webkit-scrollbar-track { background: transparent; }
-    .side-panel-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    .list-item {
-      display: flex;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-bottom: 4px;
-      border: 1.5px solid transparent;
-    }
-
-    .list-item:hover {
-      background: var(--cream);
-    }
-
-    .list-item.active {
-      background: var(--cream);
-      border-color: var(--border);
-    }
-
-    .list-item-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      flex-shrink: 0;
-    }
-
-    .list-item-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .list-item-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-dark);
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .list-item-curator {
-      font-size: 11px;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
-    .list-item-desc {
-      font-size: 12px;
-      color: var(--text-light);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* ── Floating Buttons ── */
-    .fab-group {
-      position: absolute;
-      bottom: 32px;
-      right: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 60;
-    }
-
-    .fab {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 4px 14px var(--shadow);
-      transition: all 0.2s;
-    }
-
-    .fab:hover {
-      transform: scale(1.08);
-    }
-
-    .fab-list {
-      background: var(--warm-white);
-      color: var(--text-dark);
-      border: 1.5px solid var(--border);
-    }
-
-    .fab-location {
-      background: var(--accent);
-      color: white;
-    }
-
-    /* ── Legend ── */
-    .legend {
-      position: absolute;
-      bottom: 32px;
-      left: 24px;
-      background: var(--warm-white);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 12px 16px;
-      z-index: 60;
-      box-shadow: 0 4px 14px var(--shadow);
-    }
-
-    .legend-title {
-      font-size: 11px;
-      color: var(--text-light);
-      margin-bottom: 8px;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-    }
-
-    .legend-items {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--text-mid);
-    }
-
-    .legend-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    /* ── Loading ── */
-    .map-loading {
-      position: absolute;
-      inset: 0;
-      background: var(--cream);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      gap: 16px;
-    }
-
-    .loading-icon {
-      font-size: 48px;
-      animation: bounce 1s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .loading-text {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 16px;
-      color: var(--text-mid);
-    }
-
-    /* ── Toast ── */
-    .toast {
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-10px);
-      background: var(--brown);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 13px;
-      z-index: 999;
-      opacity: 0;
-      transition: all 0.3s;
-      pointer-events: none;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-@media (max-width: 768px) {
-.header-filters { display: flex; }
-.side-panel { width: 100%; }
-.popup-card { width: calc(100vw - 32px); bottom: 80px; }
-.legend { display: none; }
-}
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
+<!-- ── Header ── -->
 <header class="header">
   <div class="header-logo">
     <div class="logo-icon">🍜</div>
@@ -777,40 +18,29 @@ scrollbar-width: none;
     </div>
   </div>
   <div class="header-right">
-    <div class="city-selector">📍 北京</div>
+    <!-- 地区下拉选择器 -->
+    <div class="region-selector" id="regionSelector">
+      <button class="region-selector-btn" id="regionSelectorBtn" onclick="toggleRegionDropdown()">
+        <span class="region-selector-pin">📍</span>
+        <span class="region-selector-label" id="regionSelectorLabel">全国</span>
+        <span class="region-selector-arrow" id="regionSelectorArrow">▾</span>
+      </button>
+      <div class="region-dropdown" id="regionDropdown">
+        <div class="region-search-wrap">
+          <input class="region-search-input" id="regionSearchInput"
+            type="text" placeholder="搜索地区…"
+            oninput="filterRegionList(this.value)"
+            onclick="event.stopPropagation()"
+          />
+        </div>
+        <div class="region-list" id="regionList"></div>
+      </div>
+    </div>
   </div>
 </header>
 
-<div class="filter-bar">
-  <div class="header-filters" id="filterGroup">
-    <button class="filter-btn cat-btn active" data-category="all" onclick="filterByCategory('all', this)">全部菜系</button>
-    <button class="filter-btn cat-btn" data-category="川菜" onclick="filterByCategory('川菜', this)">🌶 川菜</button>
-    <button class="filter-btn cat-btn" data-category="粤菜" onclick="filterByCategory('粤菜', this)">🦐 粤菜</button>
-    <button class="filter-btn cat-btn" data-category="湘菜" onclick="filterByCategory('湘菜', this)">🫙 湘菜</button>
-    <button class="filter-btn cat-btn" data-category="淮扬菜" onclick="filterByCategory('淮扬菜', this)">🦢 淮扬菜</button>
-    <button class="filter-btn cat-btn" data-category="东北菜" onclick="filterByCategory('东北菜', this)">🥘 东北菜</button>
-    <button class="filter-btn cat-btn" data-category="鲁菜" onclick="filterByCategory('鲁菜', this)">🥢 鲁菜</button>
-    <button class="filter-btn cat-btn" data-category="豫菜" onclick="filterByCategory('豫菜', this)">🫓 豫菜</button>
-    <button class="filter-btn cat-btn" data-category="冀菜" onclick="filterByCategory('冀菜', this)">🍲 冀菜</button>
-    <button class="filter-btn cat-btn" data-category="陕菜" onclick="filterByCategory('陕菜', this)">🫙 陕菜</button>
-    <button class="filter-btn cat-btn" data-category="日料" onclick="filterByCategory('日料', this)">🍣 日料</button>
-    <button class="filter-btn cat-btn" data-category="小吃" onclick="filterByCategory('小吃', this)">🥟 小吃</button>
-  </div>
-</div>
 
-<div class="filter-bar curator-bar">
-  <div class="header-filters" id="curatorGroup">
-    <span class="filter-bar-label">名厨</span>
-    <button class="filter-btn curator-btn active" onclick="filterByCurator('all', this)">全部</button>
-    <button class="filter-btn curator-btn curator-suipo" onclick="filterByCurator('隋坡', this)">
-      <span class="curator-dot"></span>隋坡
-    </button>
-    <button class="filter-btn curator-btn curator-laofangu" onclick="filterByCurator('老饭骨', this)">
-      <span class="curator-dot"></span>老饭骨
-    </button>
-  </div>
-</div>
-
+<!-- ── 地图区域 ── -->
 <div class="map-wrapper">
   <div class="map-loading" id="mapLoading">
     <div class="loading-icon">🗺️</div>
@@ -819,574 +49,131 @@ scrollbar-width: none;
 
   <div id="map"></div>
 
-  <div class="legend">
-    <div class="legend-title">图例</div>
-    <div class="legend-items" id="legendItems"></div>
-  </div>
-
   <div class="fab-group">
     <button class="fab fab-list" onclick="toggleSidePanel()" title="店铺列表">📋</button>
     <button class="fab fab-location" onclick="locateUser()" title="我的位置">📍</button>
   </div>
 
+  <!-- 侧边列表 -->
   <div class="side-panel" id="sidePanel">
     <div class="side-panel-header">
-      <div class="side-panel-title">精选店铺</div>
+      <div class="side-panel-title-row">
+        <div class="side-panel-title">精选店铺</div>
+        <button class="side-panel-close" onclick="toggleSidePanel()">✕</button>
+      </div>
+      <!-- 搜索框 -->
+      <div class="side-panel-search-wrap">
+        <span class="side-panel-search-icon">🔍</span>
+        <input
+          class="side-panel-search-input"
+          id="sidePanelSearch"
+          type="text"
+          placeholder="搜索店铺名称…"
+          oninput="onSidePanelSearch(this.value)"
+        />
+        <button class="side-panel-search-clear" id="sidePanelSearchClear" onclick="clearSidePanelSearch()" style="display:none">✕</button>
+      </div>
+      <!-- 筛选行：口味 + 推荐人 -->
+      <div class="sp-filter-row">
+        <!-- 口味下拉 -->
+        <div class="sp-dropdown" id="spCategoryDropdown">
+          <button class="sp-dropdown-btn" id="spCategoryBtn" onclick="toggleSpDropdown('spCategoryDropdown')">
+            <span class="sp-dropdown-label" id="spCategoryLabel">口味</span>
+            <span class="sp-dropdown-arrow">▾</span>
+          </button>
+          <div class="sp-dropdown-menu" id="spCategoryMenu"></div>
+        </div>
+        <!-- 推荐人下拉 -->
+        <div class="sp-dropdown" id="spCuratorDropdown">
+          <button class="sp-dropdown-btn" id="spCuratorBtn" onclick="toggleSpDropdown('spCuratorDropdown')">
+            <span class="sp-dropdown-label" id="spCuratorLabel">推荐人</span>
+            <span class="sp-dropdown-arrow">▾</span>
+          </button>
+          <div class="sp-dropdown-menu" id="spCuratorMenu"></div>
+        </div>
+      </div>
+      <!-- 数量 -->
       <div class="side-panel-count" id="sidePanelCount">共 0 家</div>
     </div>
     <div class="side-panel-list" id="sidePanelList"></div>
   </div>
 
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup-card" id="popupCard">
+  <!-- ── 弹出详情卡片 ── -->
+  <!-- 遮罩层：点击关闭 -->
+  <div class="popup-overlay" id="popupOverlay" onclick="closePopup()">
+    <div class="popup-card" id="popupCard" onclick="event.stopPropagation()">
+
+      <!-- 封面图 -->
       <div class="popup-cover" id="popupCover">
-        <span class="popup-cover-placeholder" id="popupEmoji"></span>
+        <div class="popup-cover-placeholder" id="popupEmoji"></div>
         <span class="popup-category-badge" id="popupCategory"></span>
         <button class="popup-close" onclick="closePopup()">✕</button>
       </div>
+
+      <!-- 拖拽把手 -->
+      <div class="popup-handle"></div>
+
       <div class="popup-body">
+
+        <!-- 餐厅名 -->
         <div class="popup-name" id="popupName"></div>
-        <div class="popup-curator" id="popupCurator"></div>
-        <div class="popup-desc" id="popupDesc"></div>
-        <div class="popup-tags" id="popupTags"></div>
-        <div class="popup-footer">
-          <div class="popup-address">
-            <span>📍</span>
-            <span id="popupAddressText"></span>
-          </div>
-          <button class="popup-nav-btn" id="popupNavBtn">导航前往</button>
+
+        <!-- 星级 + 评分 -->
+        <div class="popup-meta">
+          <span class="popup-stars" id="popupStars"></span>
+          <span class="popup-rating-num" id="popupRatingNum"></span>
+          <span class="popup-rating-src" id="popupRatingSrc"></span>
         </div>
+
+        <!-- 推荐人 -->
+        <div class="popup-curator" id="popupCurator"></div>
+
+        <!-- 图片区（1张或2张，由JS动态渲染） -->
+        <div class="popup-photos" id="popupPhotos" style="display:none"></div>
+
+        <!-- 简介 -->
+        <div class="popup-desc" id="popupDesc"></div>
+
+        <!-- 地址行 -->
+        <div class="popup-info-list">
+          <div class="popup-info-row" id="popupAddressRow">
+            <span class="popup-info-icon">📍</span>
+            <span class="popup-info-text" id="popupInfoAddress"></span>
+            <span class="popup-info-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- 标签 -->
+        <div class="popup-tags" id="popupTags"></div>
+
+        <!-- 来源：平台 logo -->
         <div class="popup-source" id="popupSource" style="display:none">
           <span class="popup-source-label">来源</span>
-          <a class="popup-source-link" id="popupSourceLink" href="#" target="_blank" rel="noopener">
-            <span class="popup-source-platform" id="popupSourcePlatform"></span>
-            <span class="popup-source-title" id="popupSourceTitle"></span>
+          <a class="popup-source-logo-link" id="popupSourceLink" href="#" target="_blank" rel="noopener">
+            <img class="popup-source-logo" id="popupSourceLogo" src="" alt="" />
           </a>
         </div>
+
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- end .map-wrapper -->
 
 <div class="toast" id="toast"></div>
 
+<!-- 数据层 -->
+<script src="data.js"></script>
+<!-- 应用逻辑 -->
+<script src="app.js?v=18"></script>
+
+<!-- 高德地图安全密钥 -->
 <script>
-const STORAGE_KEY = 'food_map_spots';
-
-const CATEGORY_CONFIG = {
-  '川菜':  { emoji: '🌶', color: '#E85D4A' },
-  '粤菜':  { emoji: '🦐', color: '#E8A84A' },
-  '日料':  { emoji: '🍣', color: '#4A8BE8' },
-  '小吃':  { emoji: '🥟', color: '#7A9E7E' },
-  '甜品':  { emoji: '🍰', color: '#D4845A' },
-  '咖啡':  { emoji: '☕', color: '#8B6355' },
-  '火锅':  { emoji: '🍲', color: '#C0392B' },
-  '烧烤':  { emoji: '🍖', color: '#E67E22' },
-  '西餐':  { emoji: '🥩', color: '#8E44AD' },
-'湘菜':  { emoji: '🫙', color: '#B5451B' },
-'淮扬菜': { emoji: '🦢', color: '#5B8A6E' },
-'东北菜': { emoji: '🥘', color: '#7B5EA7' },
-'鲁菜':  { emoji: '🥢', color: '#2E86AB' },
-'豫菜':  { emoji: '🫓', color: '#A23B72' },
-'冀菜':  { emoji: '🍲', color: '#6B4226' },
-'陕菜':  { emoji: '🫙', color: '#C0392B' },
-'其他':  { emoji: '🍽', color: '#95A5A6' },
-};
-
-function getDefaultSpots() {
-  return [
-    {
-      id: 'spot_9', name: '厨忆小湖南', category: '湘菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡亲探推荐的正宗湘菜小馆，口味正宗稳定，老板是地道湖南人，食客中湖南人居多，这本身就是最好的背书。三下锅、辣椒炒肉等家常湘菜火候到位，分量足，米饭也好吃，是北京难得的正宗湖南家乡味。',
-      tags: ['湘菜', '正宗', '家常', '性价比高', '隋坡推荐'],
-      address: '北京市大兴区旧忠路五环国际底商12-102', lng: 116.3850, lat: 39.7920,
-      photo: 'https://aos-comment.amap.com/B0FFJ08YIX/comment/741092AE_9749_41F1_8696_A41CF6C7D106_L0_001_1498_199_1765507195979_95327816.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7573039940246818074',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜求了好久，才套出来的特级厨师珍藏小馆—厨忆小湖南',
-    },
-    {
-      id: 'spot_10', name: '纪家小馆', category: '东北菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡探店后大加赞赏——"吃着舒服的店真的不多见"。这家藏在西红门的东北菜小馆，食材新鲜，手艺扎实，招牌肘子皮糯肉烂，酱香浓郁。小馆子备菜少，天天都是新鲜食材，这正是隋坡最看重的。',
-      tags: ['东北菜', '肘子', '家常', '新鲜食材', '隋坡推荐'],
-      address: '北京市大兴区郁花园二里东门底商16号楼1层', lng: 116.3620, lat: 39.7780,
-      photo: 'https://aos-comment.amap.com/B0L3FC64M9/comment/content_media_external_images_media_258249_ss__1763650141450_84925695.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7612326904330292523',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜吃着舒服的店真的不多见—纪家小馆',
-    },
-    {
-      id: 'spot_11', name: '喜鼎海胆水饺', category: '小吃',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡以专业厨师视角点评推荐，海胆水饺是这里的绝对主角。馅料鲜甜，海胆量足，饺子皮薄而有嚼劲。作为希尔顿行政总厨，隋坡对食材品质要求极高，能得到他认可的海胆饺子，鲜度与工艺均属上乘。',
-      tags: ['海胆', '水饺', '三里屯', '网红', '隋坡推荐'],
-      address: '北京市朝阳区三里屯路11号三里屯太古里北区B1', lng: 116.4551, lat: 39.9374,
-      photo: 'https://aos-comment.amap.com/B0KBXAJ429/comment/content_media_external_file_1956_1758759540480_46657658.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7516216947315346751',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨隋坡 2025年度美食榜单（含喜鼎海胆水饺）',
-    },
-    {
-      id: 'spot_12', name: '淮四九宴·老饭骨大师技', category: '淮扬菜',
-      curator: '老饭骨', curatorTitle: '国宴大师团队·抖音美食IP',
-      desc: '由抖音千万粉丝美食IP"老饭骨"亲自开办，隐藏在前门青云胡同梅兰芳大师故居旧址内。淮扬菜为底，国宴技法加持，招牌"现磨胡椒响油鳝糊"热油一浇香气四溢，"细切筷子头清炖松茸狮子头"鲜掉眉毛，"十年花椒东坡肉"肥而不腻。四合院环境古朴雅致，是北京最有文化底蕴的淮扬菜馆之一。',
-      tags: ['淮扬菜', '国宴', '老饭骨', '四合院', '前门', '老饭骨推荐'],
-      address: '北京市东城区青云胡同（青云贰拾叁艺术中心内院）', lng: 116.3960, lat: 39.8990,
-      photo: 'https://aos-comment.amap.com/B0K61COQZH/comment/content_media_external_file_1000008505_ss__1772674478001_58224286.jpg',
-      sourceUrl: 'https://www.bilibili.com/video/BV1QSt9zdEe5',
-      sourcePlatform: 'B站',
-      sourceTitle: '二伯评老饭骨淮四九宴，毫不留情',
-    },
-    {
-      id: 'spot_13', name: '四华家常菜', category: '川菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡2025年度美食榜单入选餐厅，成都金牛区一家让特级厨师都想"挖人"的家常菜小馆。趴锅边吃的市井氛围，拌白肉、水煮肉片等川菜家常味道纯正，食材新鲜，分量实在，性价比极高。隋坡评价：这个价格，这个分量，性价比好高。',
-      tags: ['川菜', '家常菜', '成都', '性价比', '隋坡年度榜单'],
-      address: '成都市金牛区古柏中心村西街', lng: 104.0520, lat: 30.6940,
-      photo: 'https://aos-comment.amap.com/B0FFGIN17Y/comment/187F32B8_C3CB_45F9_8C97_1A435C7F6593_L0_001_2000_150_1759281486224_36165209.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7516216947315346751',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜在成都吃趴锅边吃的小馆是什么体验—四华家常菜',
-    },
-    {
-      id: 'spot_14', name: '水一方鱼馆', category: '东北菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡两度探访、连续好评的北京东北菜馆。藏在安德路小区深处，只有回头客才知道怎么找到入口。老板娘掌勺，招牌东北大炖鱼用鸭绿江松花鱼，最小3斤起，配土豆、豆腐、宽粉条和五花肉，一桌人吃到扶墙出。隋坡评价：一年也没有几个的全好评餐厅。',
-      tags: ['东北菜', '炖鱼', '松花鱼', '家常', '安定门', '隋坡推荐'],
-      address: '北京市东城区安德路55号青年湖南街近青年湖公园南门', lng: 116.400059, lat: 39.952290,
-      photo: 'http://store.is.autonavi.com/showpic/7c75130f816b5e48a94865c34affab8a',
-      sourceUrl: 'https://www.douyin.com/video/7395116851690229046',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜一年也没有几个的全好评餐厅竟藏的这么深！—北京水一方鱼馆',
-    },
-    {
-      id: 'spot_15', name: '国富老菜馆', category: '冀菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '藏在沧州菜市场巷子里的清真老菜馆，店面小且难找，但菜做得极为规矩。招牌炸茴香鸡外酥里嫩，汁水丰富；黄焖三样咸鲜回甜，牛筋软烂入味；嘎巴豆肉是本地特色，大火烹炒锅气足。隋坡评价：藏在菜市场，但菜做的很规矩！',
-      tags: ['冀菜', '清真', '沧州', '菜市场', '炸茴香鸡', '隋坡推荐'],
-      address: '河北省沧州市运河区九中前街15号', lng: 116.886210, lat: 38.298089,
-      photo: 'https://aos-comment.amap.com/B0FFGMTP9O/comment/content_media_external_file_1000042522_ss__1768625980237_25835743.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7570556440163846198',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜藏在菜市场，但菜做的很规矩！—国富老菜馆',
-    },
-    {
-      id: 'spot_16', name: '津鲁菜馆', category: '鲁菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '天津旧津保道上只有八九张桌子的传统小店，却能做出极为正宗的津鲁菜。罗汉肚、干烧蝶鱼、素独面筋、南煎丸子……每道菜都是老手艺，盘底干净无汤汁，食材均匀裹上酱汁，是天津汉民菜的天花板级别。隋坡评价：只有八九张桌子的小店竟然能做这么传统的菜！',
-      tags: ['鲁菜', '津菜', '天津', '传统', '老手艺', '隋坡推荐'],
-      address: '天津市西青区旧津保路雅云里底商25号增2号', lng: 117.141020, lat: 39.143565,
-      photo: 'https://aos-comment.amap.com/B0HD7SO5M3/comment/b1ac5101d0ddeda3f4b5edd0b2c1bd4c_2048_2048_80.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7368763320175774976',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜只有八九张桌子的小店竟然能做这么传统的菜？—天津津鲁菜馆',
-    },
-    {
-      id: 'spot_17', name: '永乐饭店', category: '川菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '成都一家让特级厨师隋坡看完后想直接"挖人"的饭店。厨师功底扎实，菜品出品稳定，家常川菜做出了大厨水准。隋坡探店后给出极高评价，并专门点评了厨师的技艺，称其为"让特级厨师想挖人的饭店"。',
-      tags: ['川菜', '成都', '家常', '厨艺精湛', '隋坡推荐'],
-      address: '成都市武侯区肖家河中街32号', lng: 104.043627, lat: 30.630838,
-      photo: 'http://store.is.autonavi.com/showpic/104d00b02a6e3cc66f356fb99cf5bbef',
-      sourceUrl: 'https://www.douyin.com/video/7513669075017501992',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜让特级厨师想挖人的饭店是什么样？—永乐饭店',
-    },
-    {
-      id: 'spot_18', name: '食庐餐厅', category: '淮扬菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡来上海收到私信最多的餐厅，也是他亲自探访后给出高度评价的沪上淮扬菜代表。餐厅融合中西元素，低调中透露惊艳，狮子头、鳝糊等淮扬经典菜品制作精良。隋坡评价：来上海收到私信最多的餐厅，名不虚传。',
-      tags: ['淮扬菜', '上海', '狮子头', '精致', '隋坡推荐'],
-      address: '上海市长宁区遵义路150号虹桥南丰城北区L603', lng: 121.407415, lat: 31.207887,
-      photo: 'https://aos-comment.amap.com/B0FFGMTP9O/comment/content_media_external_file_1000042522_ss__1768625980237_25835743.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7521783615919902015',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜来上海收到私信最多的餐厅—食庐餐厅',
-    },
-    {
-      id: 'spot_19', name: '葛记焖饼', category: '豫菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '郑州百年老字号，河南省非物质文化遗产。隋坡专程探访这家始于清朝的焖饼店，招牌坛子肉焖饼用特制坛子肉加青菜焖制，肉香醇厚，肥而不腻，饼柔软适口。配一碗金牌红豆粥，香甜解腻，是郑州最具代表性的传统小吃。',
-      tags: ['豫菜', '郑州', '老字号', '非遗', '焖饼', '隋坡推荐'],
-      address: '郑州市中原区建设西路100号院（伏牛路总店）', lng: 113.607042, lat: 34.754763,
-      photo: 'http://store.is.autonavi.com/showpic/134d660f96723788ace12bb102b36ffd',
-      sourceUrl: 'https://www.douyin.com/search/%E7%89%B9%E5%8E%A8%E9%9A%8B%E5%9D%A1%E6%8E%A2%E5%BA%97%E9%83%91%E5%B7%9E%E8%91%9B%E8%AE%B0',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜本地人推荐！什么焖饼卖了一百年？—郑州葛记焖饼',
-    },
-    {
-      id: 'spot_20', name: '于塗文化餐厅', category: '川菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '重庆唯一一家连续8年上榜的餐厅，位于棕榈泉生态公园内，三面临湖，被称为"水上的玻璃四合院"。以老板从各处收集的老院子和古董做装点，古筝等琴曲表演贯穿用餐全程。隋坡探访后评价其为重庆高端川菜的代表，菜品精致，文化底蕴深厚。',
-      tags: ['川菜', '重庆', '高端', '文化餐厅', '连续上榜', '隋坡推荐'],
-      address: '重庆市渝北区金开大道88号棕榈岛3号楼', lng: 106.535124, lat: 29.629996,
-      photo: 'http://store.is.autonavi.com/showpic/2165a62b72ea193b678e995d7b43e5be',
-      sourceUrl: 'https://www.douyin.com/video/7585623300701768969',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜重庆唯一一家连续8年上榜餐厅，味道到底咋样？—于塗',
-    },
-    {
-      id: 'spot_21', name: '平平898', category: '川菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '重庆本地人认证、藏在大坪巷子里的家常川菜馆。隋坡探访后评价其食材新鲜、价格实惠，是真正的市井好味道。泡椒炒猪肝、白油豆腐等传统川菜做法地道，嫩豆腐口感细腻，是重庆本地人的日常食堂。',
-      tags: ['川菜', '重庆', '家常', '大坪', '性价比', '隋坡推荐'],
-      address: '重庆市渝中区大坪正街2号（大坪地铁站2号口步行90米）', lng: 106.519843, lat: 29.540936,
-      photo: 'https://aos-comment.amap.com/B0FFJ090C0/comment/FAAA2A5A_E9E6_402D_84B0_113750D14FE7_L0_001_1320_158_1763893975623_22682182.jpg',
-      sourceUrl: 'https://www.douyin.com/video/7587097898194570538',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜重庆本地人认证还难找？巷子里的平平898',
-    },
-    {
-      id: 'spot_22', name: '炳胜品味', category: '粤菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '隋坡探访后评价"粤菜的另一座高山"，这是一家在广州深耕三十年的粤菜老字号，获"国家五钻级酒家"殊荣，连续多年入选米其林推荐。脆皮叉烧、炳胜鱼生、冷水猪肚是必点招牌，食材选料精细，烹调细心，出品极为稳定。隋坡以专业厨师视角给出高度评价。',
-      tags: ['粤菜', '广州', '老字号', '米其林', '叉烧', '隋坡推荐'],
-      address: '广州市海珠区东晓路33号', lng: 113.286261, lat: 23.105368,
-      photo: 'http://store.is.autonavi.com/showpic/70432b40c4c52aff830a611a249d50c5',
-      sourceUrl: 'https://www.douyin.com/video/7570404460392877364',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜粤菜的另一座高山？！—炳胜',
-    },
-    {
-      id: 'spot_23', name: '海旺黄酱面馆', category: '小吃',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '太原开了三十多年的黄酱面老店，宁浩导演力荐，隋坡专程探访。招牌手工拽面粗如手指，配自研黄酱料，麻麻咧咧、越嚼越香。面糊"三醒三揣"工艺独特，韧劲十足。店主任海旺坚守四十年，是太原面食文化的活化石。隋坡评价：麻麻咧咧的面，太有意思了！',
-      tags: ['小吃', '面食', '太原', '老字号', '黄酱面', '隋坡推荐'],
-      address: '太原市万柏林区玉河街大唐世家一期2号楼6号店', lng: 112.508711, lat: 37.870068,
-      photo: 'https://aos-comment.amap.com/B0FFJ6AD75/comment/11818FCD_063A_45BC_9FC7_AA4AF4A0B1A2_L0_001_1206_73_1769649725342_90693623.jpg',
-      sourceUrl: 'https://www.bilibili.com/video/BV17LNGzbEyd/',
-      sourcePlatform: 'B站',
-      sourceTitle: '特厨探店｜麻麻咧咧的面是什么面？—海旺黄酱面馆',
-    },
-    {
-      id: 'spot_24', name: '玉泉饭庄', category: '鲁菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '天津清真菜的代表性老字号，主理人曾是80年代屡获殊荣的天津清真名厨柴金梁师傅的传人。隋坡探访后评价其为"四位数也有性价比的一道菜"，炒虾仁、全爆、高丽豆沙等传统津菜功夫菜做工精细，人均不过百却能吃到经典天津清真菜的精髓。',
-      tags: ['鲁菜', '清真', '天津', '老字号', '功夫菜', '隋坡推荐'],
-      address: '天津市南开区玉泉路5号', lng: 117.17065, lat: 39.124151,
-      photo: 'https://aos-comment.amap.com/comment/content_service__1770360300264_05470089_1770360400016_21723336.jpg',
-      sourceUrl: 'https://www.douyin.com/search/%E7%89%B9%E5%8E%A8%E9%9A%8B%E5%9D%A1%E6%8E%A2%E5%BA%97%E5%A4%A9%E6%B4%A5%E7%8E%89%E6%B3%89%E9%A5%AD%E5%BA%84',
-      sourcePlatform: '抖音',
-      sourceTitle: '特厨探店｜四位数也有性价比的一道菜？—玉泉饭庄',
-    },
-    {
-      id: 'spot_25', name: '西安饭庄', category: '陕菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '创建于1929年的西安中华老字号，陕西省首批非物质文化遗产保护单位，郭沫若亲题店名。隋坡探访后评价其为"西安最有名的饭店"，葫芦鸡是镇店之宝，外酥里嫩，香气扑鼻；biangbiang面、肉夹馍等陕西经典小吃也做得有模有样。是了解陕菜文化的必去之地。',
-      tags: ['陕菜', '西安', '老字号', '非遗', '葫芦鸡', '隋坡推荐'],
-      address: '西安市碑林区南大街110号钟楼饭店院内', lng: 108.946099, lat: 34.258452,
-      photo: 'http://store.is.autonavi.com/showpic/5712b0f4664d7a445d0b1339e03f7afe',
-      sourceUrl: 'https://www.acfun.cn/v/ac48325209',
-      sourcePlatform: 'AcFun',
-      sourceTitle: '特厨探店｜西安最有名的饭店？—西安饭庄',
-    },
-    {
-      id: 'spot_26', name: '知音酒楼', category: '东北菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '哈尔滨还得排两次队的家常菜馆，隋坡探访后给出高度评价。这家藏在汉广街的东北菜馆，食材新鲜，手艺扎实，锅包肉外酥里嫩，酸甜适口，是哈尔滨本地人心中的家常菜天花板。隋坡评价：哈尔滨还得排两次队的家常菜馆！',
-      tags: ['东北菜', '哈尔滨', '锅包肉', '家常', '排队', '隋坡推荐'],
-      address: '哈尔滨市道里区汉广街41号金华大厦F1层', lng: 126.625682, lat: 45.736522,
-      photo: 'https://aos-comment.amap.com/B01C30123E/comment/content_media_external_file_28573_1759989961861_19272087.jpg',
-      sourceUrl: 'https://www.acfun.cn/v/ac48325209',
-      sourcePlatform: 'AcFun',
-      sourceTitle: '特厨探店｜哈尔滨还得排两次队的家常菜馆？—知音酒楼',
-    },
-    {
-      id: 'spot_27', name: '丁香小镇', category: '东北菜',
-      curator: '隋坡', curatorTitle: '特级厨师·探店博主',
-      desc: '哈尔滨家常菜馆中藏着最好锅包肉的宝藏小店，隋坡探访后评价其锅包肉是哈尔滨最佳之一。店面朴实，食材新鲜，东北家常菜做法地道，分量足，价格实惠。隋坡评价：家常菜馆藏着哈尔滨最好的锅包肉！',
-      tags: ['东北菜', '哈尔滨', '锅包肉', '家常', '性价比', '隋坡推荐'],
-      address: '哈尔滨市道里区兆麟街22号（工厂街与兆麟街交口）', lng: 126.627278, lat: 45.766257,
-      photo: 'http://store.is.autonavi.com/showpic/74dc855c1eee03ce526937a1c01360cf',
-      sourceUrl: 'https://www.acfun.cn/v/ac48325209',
-      sourcePlatform: 'AcFun',
-      sourceTitle: '特厨探店｜家常菜馆藏着哈尔滨最好的锅包肉？—丁香小镇',
-    },
-  ];
-}
-
-// 数据版本号：修改此值可强制清除旧的模拟数据，只保留真实餐厅
-const DATA_VERSION = 'v5_hd_photos';
-
-function loadSpots() {
-  try {
-    // 版本不匹配时清除旧数据
-    if (localStorage.getItem('food_map_version') !== DATA_VERSION) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.setItem('food_map_version', DATA_VERSION);
-    }
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch(e) {}
-  const defaults = getDefaultSpots();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-  return defaults;
-}
-
-let _map = null;
-let markers = [];
-let allSpots = [];
-let currentFilter = 'all';
-let currentCuratorFilter = 'all';
-let activeSpotId = null;
-
-window.initAMap = function() {
-  document.getElementById('mapLoading').style.display = 'none';
-
-  _map = new AMap.Map('map', {
-    zoom: 13,
-    center: [116.3974, 39.9093],
-    mapStyle: 'amap://styles/whitesmoke',
-  });
-
-  allSpots = loadSpots();
-  renderMarkers(allSpots);
-  renderSidePanel(allSpots);
-  renderLegend();
-
-  _map.on('click', () => closePopup());
-};
-
-function getIconPath(spotId) {
-  return `icons/${spotId}.png`;
-}
-
-function renderMarkers(spots) {
-  markers.forEach(m => m.setMap(null));
-  markers = [];
-
-  spots.forEach(spot => {
-    const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
-    const iconPath = getIconPath(spot.id);
-    const markerEl = document.createElement('div');
-    markerEl.className = 'custom-marker';
-    // 用照片圆形图标，加载失败时降级为 emoji pin
-    markerEl.innerHTML = `
-      <div class="marker-photo-wrap" style="border-color:${cfg.color}">
-        <img class="marker-photo" src="${iconPath}"
-          onerror="this.parentElement.innerHTML='<span style=\'font-size:22px;line-height:46px;display:block;text-align:center\'>${cfg.emoji}</span>'">
-      </div>
-      <div class="marker-label">${spot.name}</div>
-    `;
-
-    const marker = new AMap.Marker({
-      position: [spot.lng, spot.lat],
-      content: markerEl,
-      offset: new AMap.Pixel(-23, -46),
-      zIndex: 100,
-    });
-
-    marker.on('click', (e) => {
-      e.stopPropagation && e.stopPropagation();
-      showPopup(spot);
-    });
-
-    marker.setMap(_map);
-    marker._spotId = spot.id;
-    markers.push(marker);
-  });
-}
-
-function showPopup(spot) {
-  activeSpotId = spot.id;
-  const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
-
-  const emojiEl = document.getElementById('popupEmoji');
-  if (emojiEl) emojiEl.textContent = cfg.emoji;
-  document.getElementById('popupCategory').textContent = spot.category;
-  document.getElementById('popupName').textContent = spot.name;
-  document.getElementById('popupDesc').textContent = spot.desc;
-  document.getElementById('popupAddressText').textContent = spot.address;
-
-  document.getElementById('popupCurator').innerHTML = `
-    <div class="curator-avatar">${spot.curator[0]}</div>
-    <span class="curator-name">${spot.curator}</span>
-    <span class="curator-tag">${spot.curatorTitle || '美食家'}</span>
-  `;
-
-  document.getElementById('popupTags').innerHTML = (spot.tags || []).map(t =>
-    `<span class="popup-tag">${t}</span>`
-  ).join('');
-
-  document.getElementById('popupNavBtn').onclick = () => {
-    window.open(`https://uri.amap.com/navigation?to=${spot.lng},${spot.lat},${encodeURIComponent(spot.name)}&mode=car&src=food-map`, '_blank');
-  };
-
-  // 来源链接
-  const sourceEl = document.getElementById('popupSource');
-  if (spot.sourceUrl) {
-    document.getElementById('popupSourceLink').href = spot.sourceUrl;
-    document.getElementById('popupSourcePlatform').textContent = spot.sourcePlatform || '查看原视频';
-    document.getElementById('popupSourceTitle').textContent = spot.sourceTitle ? `· ${spot.sourceTitle}` : '';
-    sourceEl.style.display = 'flex';
-  } else {
-    sourceEl.style.display = 'none';
-  }
-
-  // 封面图：优先用 spot.photo 高清原图，fallback 到本地小图标，再 fallback 到渐变色
-  const coverEl = document.getElementById('popupCover');
-  // 只删除动态创建的图片和占位符（不删除有 id 的静态元素）
-  coverEl.querySelectorAll('.popup-cover-img').forEach(el => el.remove());
-  coverEl.querySelectorAll('.popup-cover-placeholder:not(#popupEmoji)').forEach(el => el.remove());
-  // 隐藏静态 emoji 占位符（有图时不显示）
-  const emojiPlaceholder = document.getElementById('popupEmoji');
-  if (emojiPlaceholder) emojiPlaceholder.style.display = 'none';
-
-  // 候选图片列表：高清原图 → 本地小图标
-  const photoCandidates = [];
-  if (spot.photo) photoCandidates.push(spot.photo);
-  photoCandidates.push(getIconPath(spot.id));
-
-  function tryLoadCover(candidates) {
-    if (!candidates.length) {
-      // 全部失败，降级为渐变色+emoji
-      coverEl.style.background = `linear-gradient(135deg, ${cfg.color}44, ${cfg.color}99)`;
-      if (emojiPlaceholder) {
-        emojiPlaceholder.textContent = cfg.emoji;
-        emojiPlaceholder.style.display = '';
-      }
-      return;
-    }
-    const img = document.createElement('img');
-    img.className = 'popup-cover-img';
-    img.src = candidates[0];
-    img.onerror = () => {
-      img.remove();
-      tryLoadCover(candidates.slice(1));
-    };
-    img.onload = () => { coverEl.style.background = ''; };
-    coverEl.style.background = `linear-gradient(135deg, ${cfg.color}44, ${cfg.color}99)`;
-    coverEl.appendChild(img);
-  }
-  tryLoadCover(photoCandidates);
-
-  const card = document.getElementById('popupCard');
-  card.style.display = 'block';
-  requestAnimationFrame(() => card.classList.add('visible'));
-
-  _map.panTo([spot.lng, spot.lat]);
-
-  document.querySelectorAll('.list-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.id === spot.id);
-  });
-}
-
-function closePopup() {
-  const card = document.getElementById('popupCard');
-  card.classList.remove('visible');
-  setTimeout(() => { card.style.display = 'none'; }, 300);
-  activeSpotId = null;
-  document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
-}
-
-function renderSidePanel(spots) {
-  document.getElementById('sidePanelCount').textContent = `共 ${spots.length} 家`;
-  document.getElementById('sidePanelList').innerHTML = spots.map(spot => {
-    const cfg = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG['其他'];
-    return `
-      <div class="list-item" data-id="${spot.id}" onclick="onListItemClick('${spot.id}')">
-        <div class="list-item-icon" style="background:linear-gradient(135deg,${cfg.color}33,${cfg.color}66)">
-          ${cfg.emoji}
-        </div>
-        <div class="list-item-info">
-          <div class="list-item-name">${spot.name}</div>
-          <div class="list-item-curator">✦ ${spot.curator} 推荐</div>
-          <div class="list-item-desc">${spot.desc}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function onListItemClick(id) {
-  const spot = allSpots.find(s => s.id === id);
-  if (spot) showPopup(spot);
-}
-
-function toggleSidePanel() {
-  document.getElementById('sidePanel').classList.toggle('open');
-}
-
-function getFilteredSpots() {
-  let spots = allSpots;
-  if (currentFilter !== 'all') spots = spots.filter(s => s.category === currentFilter);
-  if (currentCuratorFilter !== 'all') spots = spots.filter(s => s.curator === currentCuratorFilter);
-  return spots;
-}
-
-function filterByCategory(category, btn) {
-  currentFilter = category;
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const filtered = getFilteredSpots();
-  renderMarkers(filtered);
-  renderSidePanel(filtered);
-  closePopup();
-}
-
-function filterByCurator(curator, btn) {
-  currentCuratorFilter = curator;
-  document.querySelectorAll('.curator-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const filtered = getFilteredSpots();
-  renderMarkers(filtered);
-  renderSidePanel(filtered);
-  closePopup();
-}
-
-function renderLegend() {
-  const usedCategories = [...new Set(allSpots.map(s => s.category))];
-  document.getElementById('legendItems').innerHTML = usedCategories.map(cat => {
-    const cfg = CATEGORY_CONFIG[cat] || CATEGORY_CONFIG['其他'];
-    return `
-      <div class="legend-item">
-        <div class="legend-dot" style="background:${cfg.color}"></div>
-        <span>${cfg.emoji} ${cat}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-function locateUser() {
-  if (!navigator.geolocation) { showToast('您的浏览器不支持定位'); return; }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      _map.setCenter([pos.coords.longitude, pos.coords.latitude]);
-      _map.setZoom(15);
-      showToast('已定位到您的位置');
-    },
-    () => showToast('定位失败，请检查权限设置')
-  );
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-window.addEventListener('storage', (e) => {
-  if (e.key === STORAGE_KEY) {
-    allSpots = loadSpots();
-    const filtered = currentFilter === 'all' ? allSpots : allSpots.filter(s => s.category === currentFilter);
-    renderMarkers(filtered);
-    renderSidePanel(filtered);
-    renderLegend();
-    showToast('地图数据已更新');
-  }
-});
-</script>
-
-<script>
-// 高德地图安全密钥配置（明文方式，参考官方文档：https://lbs.amap.com/api/javascript-api-v2/guide/abc/jscode）
-// 注意：此配置必须在 JS API 脚本加载之前设置，否则无效
 window._AMapSecurityConfig = {
   securityJsCode: localStorage.getItem('amap_security_code') || '1cec5aea265999d7fa14e96217c041b5',
 };
 </script>
+<!-- 动态加载高德地图 JS API -->
 <script>
 (function() {
   const key = localStorage.getItem('amap_key_override') || 'bff961046fdefbc7fa4bb67a40e7ef93';
@@ -1395,5 +182,6 @@ window._AMapSecurityConfig = {
   document.body.appendChild(s);
 })();
 </script>
+
 </body>
 </html>

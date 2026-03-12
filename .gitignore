@@ -1,0 +1,13 @@
+.DS_Store
+*.xlsx
+*.docx
+*.py
+bilibili_videos.json
+shops_data.json
+moshusql.skill
+food-map-miniapp/
+food-map.html
+roundtable.html
+admin.html
+setup.html
+.vercel/
