@@ -119,44 +119,25 @@ function renderMarkers(spots) {
     markerEl.appendChild(thumbDiv);
     markerEl.appendChild(labelDiv);
 
+    // 直接用 <img> 加载图片（不走 fetch，img 标签不受 CORS 限制）
+    // 优先外部图片，失败则降级 emoji
+    img.style.display = 'none';
+    emojiFb.style.display = 'flex';
     if (primaryImg) {
-      // 有外部图片：先显示 emoji 占位，fetch 成功后切换为真实图片
-      img.style.display = 'none';
-      emojiFb.style.display = 'flex';
-      fetch(primaryImg, { referrerPolicy: 'no-referrer' })
-        .then(r => r.ok ? r.blob() : Promise.reject())
-        .then(blob => {
-          const blobUrl = URL.createObjectURL(blob);
-          img.onload = function() {
-            img.style.display = '';
-            emojiFb.style.display = 'none';
-          };
-          img.onerror = function() { /* 保持 emoji */ };
-          img.src = blobUrl;
-        })
-        .catch(() => {
-          // fetch 失败，降级用本地 icon
-          img.onerror = function() {
-            this.style.display = 'none';
-            emojiFb.style.display = 'flex';
-          };
-          img.onload = function() {
-            img.style.display = '';
-            emojiFb.style.display = 'none';
-          };
-          img.src = fallbackImg;
-        });
-    } else {
-      // 无外部图片，直接用本地 icon
-      img.onerror = function() {
-        this.style.display = 'none';
-        emojiFb.style.display = 'flex';
-      };
       img.onload = function() {
         img.style.display = '';
         emojiFb.style.display = 'none';
       };
-      img.src = fallbackImg;
+      img.onerror = function() {
+        // 外部图片失败，直接显示 emoji（不再尝试本地 icon，因为 suipo_sXX 没有本地文件）
+        img.style.display = 'none';
+        emojiFb.style.display = 'flex';
+      };
+      img.crossOrigin = 'anonymous';
+      img.referrerPolicy = 'no-referrer';
+      img.src = primaryImg;
+    } else {
+      // 无外部图片，保持 emoji 显示
     }
 
     const marker = new AMap.Marker({
@@ -356,21 +337,8 @@ function renderSidePanel(spots) {
       return;
     }
 
-const iconUrl = getIconPath(spot.id);
-fetch(spot.photo, { referrerPolicy: 'no-referrer' })
-.then(r => r.ok ? r.blob() : Promise.reject())
-.then(blob => {
-const url = URL.createObjectURL(blob);
-_sidePanelBlobCache[spot.id] = url;
-// 确认 DOM 元素还在（列表可能已重新渲染）
-const el = document.getElementById(`thumb_${spot.id}`);
-if (el) _applyThumbImage(el, url);
-})
-.catch(() => {
-// fetch 失败，降级用本地 icon
-const el = document.getElementById(`thumb_${spot.id}`);
-if (el) _applyThumbImage(el, iconUrl, true);
-})
+// 直接用 img 标签加载（不走 fetch，不受 CORS 限制）
+_applyThumbImage(thumbEl, spot.photo);
 
   });
 }
@@ -379,13 +347,15 @@ function _applyThumbImage(thumbEl, imgUrl) {
 const img = document.createElement('img');
 img.className = 'list-item-thumb-img';
 img.alt = '';
+img.crossOrigin = 'anonymous';
+img.referrerPolicy = 'no-referrer';
 const emojiEl = thumbEl.querySelector('.list-item-thumb-emoji');
 img.onload = () => {
   if (emojiEl) emojiEl.style.display = 'none';
 };
 img.onerror = () => {
   img.remove();
-  // 本地 icon 也失败时保持 emoji 显示
+  // 图片加载失败时保持 emoji 显示
 };
 img.src = imgUrl;
 thumbEl.insertBefore(img, thumbEl.firstChild);
